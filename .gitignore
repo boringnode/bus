@@ -1,0 +1,15 @@
+# Build
+build
+
+# Dependencies
+node_modules
+package-lock.json
+
+# Build tools specific
+npm-debug.log
+yarn-error.log
+
+# Editors specific
+.fleet
+.idea
+.vscode
