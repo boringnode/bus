@@ -31,6 +31,7 @@ export interface TransportEncoder {
 
 export interface RetryQueueOptions {
   enabled?: boolean
+  removeDuplicates?: boolean
   maxSize?: number | null
 }
 

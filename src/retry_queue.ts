@@ -5,26 +5,26 @@
  * @copyright Romain Lanz <romain.lanz@pm.me>
  */
 
-import { MessageHasher } from './message_hasher.js'
+import { RetryQueueWithDuplicates } from './retry_queue_with_duplicates.js'
+import { RetryQueueWithoutDuplicates } from './retry_queue_without_duplicates.js'
 import type { TransportMessage, RetryQueueOptions } from './types/main.js'
 
 export class RetryQueue {
-  #queue = new Map<string, { channel: string; message: TransportMessage }>()
-  #messageHasher: MessageHasher
-
-  readonly #enabled: boolean
-  readonly #maxSize: number | null
+  #queue: RetryQueueWithDuplicates | RetryQueueWithoutDuplicates
 
   constructor(params: RetryQueueOptions = {}) {
-    const { enabled = true, maxSize = null } = params
+    const { enabled = true, maxSize = null, removeDuplicates = true } = params
 
-    this.#enabled = enabled
-    this.#maxSize = maxSize
-    this.#messageHasher = new MessageHasher()
+    if (removeDuplicates) {
+      this.#queue = new RetryQueueWithoutDuplicates({ enabled, maxSize })
+      return
+    }
+
+    this.#queue = new RetryQueueWithDuplicates({ enabled, maxSize })
   }
 
-  #generateMessageHash(message: TransportMessage) {
-    return this.#messageHasher.hash(message.payload)
+  getInternalQueue() {
+    return this.#queue
   }
 
   size() {
@@ -32,46 +32,14 @@ export class RetryQueue {
   }
 
   async process(handler: (channel: string, message: TransportMessage) => Promise<boolean>) {
-    if (!this.#enabled) return
-
-    for (const { channel, message } of this.#queue.values()) {
-      const result = await handler(channel, message).catch(() => false)
-
-      if (!result) {
-        break
-      }
-
-      this.dequeue()
-    }
+    return this.#queue.process(handler)
   }
 
   enqueue(channel: string, message: TransportMessage) {
-    if (!this.#enabled) return false
-
-    if (this.#maxSize && this.#queue.size >= this.#maxSize) {
-      this.dequeue()
-    }
-
-    const hash = this.#generateMessageHash(message)
-
-    if (this.#queue.has(hash)) {
-      return false
-    }
-
-    this.#queue.set(hash, { channel, message })
-
-    return true
+    return this.#queue.enqueue(channel, message)
   }
 
   dequeue() {
-    if (!this.#enabled) return
-
-    const { message } = this.#queue.values().next().value
-
-    if (message) {
-      this.#queue.delete(this.#generateMessageHash(message))
-
-      return message
-    }
+    this.#queue.dequeue()
   }
 }
