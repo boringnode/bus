@@ -10,10 +10,13 @@ import { RetryQueueWithoutDuplicates } from './retry_queue_without_duplicates.js
 import type { TransportMessage, RetryQueueOptions } from './types/main.js'
 
 export class RetryQueue {
-  #queue: RetryQueueWithDuplicates | RetryQueueWithoutDuplicates
+  readonly #options: RetryQueueOptions
+  readonly #queue: RetryQueueWithDuplicates | RetryQueueWithoutDuplicates
 
   constructor(params: RetryQueueOptions = {}) {
     const { enabled = true, maxSize = null, removeDuplicates = true } = params
+
+    this.#options = { enabled, maxSize, removeDuplicates }
 
     if (removeDuplicates) {
       this.#queue = new RetryQueueWithoutDuplicates({ enabled, maxSize })
@@ -21,6 +24,10 @@ export class RetryQueue {
     }
 
     this.#queue = new RetryQueueWithDuplicates({ enabled, maxSize })
+  }
+
+  getOptions() {
+    return this.#options
   }
 
   getInternalQueue() {
