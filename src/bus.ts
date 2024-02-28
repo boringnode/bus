@@ -8,19 +8,23 @@
 import { createId } from '@paralleldrive/cuid2'
 import { RetryQueue } from './retry_queue.js'
 import debug from './debug.js'
-import type { Transport, TransportMessage } from './types/main.js'
+import type { RetryQueueOptions, Transport, TransportMessage } from './types/main.js'
 
 export class Bus {
   readonly #driver: Transport
   readonly #busId: string
   readonly #errorRetryQueue: RetryQueue
 
-  constructor(driver: Transport) {
+  constructor(driver: Transport, options: { retryQueue?: RetryQueueOptions }) {
     this.#driver = driver
     this.#busId = createId()
-    this.#errorRetryQueue = new RetryQueue()
+    this.#errorRetryQueue = new RetryQueue(options.retryQueue)
 
     driver.setId(this.#busId).onReconnect(() => this.#onReconnect())
+  }
+
+  getRetryQueue() {
+    return this.#errorRetryQueue
   }
 
   #processErrorRetryQueue() {

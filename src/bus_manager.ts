@@ -9,19 +9,20 @@ import { RuntimeException } from '@poppinss/utils'
 import { Bus } from './bus.js'
 import debug from './debug.js'
 import type {
+  ManagerConfig,
   Serializable,
   SubscribeHandler,
-  TransportFactory,
+  TransportConfig,
   TransportMessage,
 } from './types/main.js'
 
-export class BusManager<KnownTransports extends Record<string, TransportFactory>> {
+export class BusManager<KnownTransports extends Record<string, TransportConfig>> {
   readonly #defaultTransportName: keyof KnownTransports | undefined
   readonly #transports: KnownTransports
 
   #transportsCache: Partial<Record<keyof KnownTransports, Bus>> = {}
 
-  constructor(config: { default?: keyof KnownTransports; transports: KnownTransports }) {
+  constructor(config: ManagerConfig<KnownTransports>) {
     debug('creating bus manager. config: %O', config)
 
     this.#transports = config.transports
@@ -30,6 +31,7 @@ export class BusManager<KnownTransports extends Record<string, TransportFactory>
 
   use<KnownTransport extends keyof KnownTransports>(transports?: KnownTransport): Bus {
     let transportToUse: keyof KnownTransports | undefined = transports || this.#defaultTransportName
+
     if (!transportToUse) {
       throw new RuntimeException(
         'Cannot create bus instance. No default transport is defined in the config'
@@ -42,10 +44,12 @@ export class BusManager<KnownTransports extends Record<string, TransportFactory>
       return cachedTransport
     }
 
-    const driverFactory = this.#transports[transportToUse]
+    const driverConfig = this.#transports[transportToUse]
 
     debug('creating new transport instance for %s', transportToUse)
-    const transportInstance = new Bus(driverFactory())
+    const transportInstance = new Bus(driverConfig.driver(), {
+      retryQueue: driverConfig.retryQueue,
+    })
     this.#transportsCache[transportToUse] = transportInstance
 
     return transportInstance

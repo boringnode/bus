@@ -74,7 +74,7 @@ test.group('RetryQueueWithDuplicates', () => {
     while (queue.size() > 0) queuedItems.push(queue.dequeue())
 
     assert.deepEqual(
-      queuedItems.map((i) => i.payload),
+      queuedItems.map((i) => i!.payload),
       [1, 2, 3, 4, 5]
     )
   })

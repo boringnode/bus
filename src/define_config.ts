@@ -5,11 +5,10 @@
  * @copyright Romain Lanz <romain.lanz@pm.me>
  */
 
-import type { TransportFactory } from './types/main.js'
+import type { ManagerConfig, TransportConfig } from './types/main.js'
 
-export function defineConfig<KnownTransports extends Record<string, TransportFactory>>(config: {
-  default: keyof KnownTransports
-  transports: KnownTransports
-}): { default: keyof KnownTransports; transports: KnownTransports } {
+export function defineConfig<KnownTransports extends Record<string, TransportConfig>>(
+  config: ManagerConfig<KnownTransports>
+): ManagerConfig<KnownTransports> {
   return config
 }

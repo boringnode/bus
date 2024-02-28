@@ -15,7 +15,9 @@ test.group('Bus Manager', () => {
     const manager = new BusManager({
       default: 'memory',
       transports: {
-        memory: () => new MemoryTransport(),
+        memory: {
+          driver: () => new MemoryTransport(),
+        },
       },
     })
 
@@ -29,8 +31,12 @@ test.group('Bus Manager', () => {
     const manager = new BusManager({
       default: 'memory',
       transports: {
-        memory: () => new MemoryTransport(),
-        memory1: () => new MemoryTransport(),
+        memory: {
+          driver: () => new MemoryTransport(),
+        },
+        memory1: {
+          driver: () => new MemoryTransport(),
+        },
       },
     })
 
@@ -46,7 +52,9 @@ test.group('Bus Manager', () => {
     const manager = new BusManager({
       default: 'memory',
       transports: {
-        memory: () => new MemoryTransport(),
+        memory: {
+          driver: () => new MemoryTransport(),
+        },
       },
     })
 
@@ -56,7 +64,9 @@ test.group('Bus Manager', () => {
   test('fail when default transport is missing', ({ assert }) => {
     const manager = new BusManager({
       transports: {
-        memory: () => new MemoryTransport(),
+        memory: {
+          driver: () => new MemoryTransport(),
+        },
       },
     })
 
@@ -64,5 +74,28 @@ test.group('Bus Manager', () => {
       () => manager.use(),
       'Cannot create bus instance. No default transport is defined in the config'
     )
+  })
+
+  test('pass retry queue options to the bus instance', ({ assert }) => {
+    const manager = new BusManager({
+      default: 'memory',
+      transports: {
+        memory: {
+          driver: () => new MemoryTransport(),
+          retryQueue: {
+            enabled: false,
+            maxSize: 100,
+          },
+        },
+      },
+    })
+
+    const bus = manager.use('memory')
+
+    assert.deepEqual(bus.getRetryQueue().getOptions(), {
+      enabled: false,
+      maxSize: 100,
+      removeDuplicates: true,
+    })
   })
 })
