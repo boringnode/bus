@@ -41,4 +41,28 @@ test.group('Bus Manager', () => {
     assert.strictEqual(manager.use('memory'), manager.use('memory'))
     assert.notStrictEqual(manager.use('memory'), manager.use('memory1'))
   })
+
+  test('use default bus', ({ assert }) => {
+    const manager = new BusManager({
+      default: 'memory',
+      transports: {
+        memory: () => new MemoryTransport(),
+      },
+    })
+
+    assert.strictEqual(manager.use(), manager.use('memory'))
+  })
+
+  test('fail when default transport is missing', ({ assert }) => {
+    const manager = new BusManager({
+      transports: {
+        memory: () => new MemoryTransport(),
+      },
+    })
+
+    assert.throws(
+      () => manager.use(),
+      'Cannot create bus instance. No default transport is defined in the config'
+    )
+  })
 })

@@ -16,12 +16,12 @@ import type {
 } from './types/main.js'
 
 export class BusManager<KnownTransports extends Record<string, TransportFactory>> {
-  readonly #defaultTransportName: keyof KnownTransports
+  readonly #defaultTransportName: keyof KnownTransports | undefined
   readonly #transports: KnownTransports
 
   #transportsCache: Partial<Record<keyof KnownTransports, Bus>> = {}
 
-  constructor(config: { default: keyof KnownTransports; transports: KnownTransports }) {
+  constructor(config: { default?: keyof KnownTransports; transports: KnownTransports }) {
     debug('creating bus manager. config: %O', config)
 
     this.#transports = config.transports
