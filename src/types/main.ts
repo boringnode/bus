@@ -5,7 +5,20 @@
  * @copyright Romain Lanz <romain.lanz@pm.me>
  */
 
+import type { RedisOptions } from 'ioredis'
 export type TransportFactory = () => Transport
+
+export interface ManagerConfig<KnownTransports extends Record<string, TransportConfig>> {
+  default?: keyof KnownTransports
+  transports: KnownTransports
+}
+
+export interface TransportConfig {
+  driver: TransportFactory
+  retryQueue?: RetryQueueOptions
+}
+
+export interface RedisTransportConfig extends RedisOptions {}
 
 export interface Transport {
   setId: (id: string) => Transport

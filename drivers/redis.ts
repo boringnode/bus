@@ -6,7 +6,8 @@
  */
 
 import { RedisTransport } from '../src/drivers/redis_transport.js'
+import type { RedisTransportConfig, TransportEncoder } from '../src/types/main.js'
 
-export function redis(config: any) {
-  return () => new RedisTransport(config)
+export function redis(config: RedisTransportConfig, encoder?: TransportEncoder) {
+  return () => new RedisTransport(config, encoder)
 }
