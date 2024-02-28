@@ -45,7 +45,7 @@ test.group('Redis Bus', (group) => {
       await bus2.disconnect()
     })
 
-    bus1.subscribe('testing-channel', (message) => {
+    await bus1.subscribe('testing-channel', (message) => {
       assert.equal(message.payload, 'test')
       done()
     })

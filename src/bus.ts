@@ -42,10 +42,10 @@ export class Bus {
     await this.#processErrorRetryQueue()
   }
 
-  async subscribe(channel: string, handler: (message: any) => void) {
+  subscribe(channel: string, handler: (message: any) => void) {
     debug(`subscribing to channel ${channel}`)
 
-    this.#driver.subscribe(channel, async (message) => {
+    return this.#driver.subscribe(channel, async (message) => {
       await this.#processErrorRetryQueue()
 
       debug(`received message ${message.payload} from bus`)
