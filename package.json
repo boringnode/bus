@@ -11,7 +11,7 @@
     "build"
   ],
   "exports": {
-    ".": "./build/index.js",
+    ".": "./build/src/index.js",
     "./drivers/*": "./build/drivers/*.js",
     "./types/*": "./build/types/*.js"
   },
