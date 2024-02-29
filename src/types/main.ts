@@ -39,7 +39,7 @@ export interface TransportMessage<T extends Serializable = any> {
 
 export interface TransportEncoder {
   encode: (message: TransportMessage) => string | Buffer
-  decode: <T>(data: string) => T
+  decode: <T>(data: string) => { busId: string; payload: T }
 }
 
 export interface RetryQueueOptions {

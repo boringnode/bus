@@ -13,7 +13,7 @@
   "exports": {
     ".": "./build/src/index.js",
     "./drivers/*": "./build/drivers/*.js",
-    "./types/*": "./build/types/*.js"
+    "./types/*": "./build/src/types/*.js"
   },
   "scripts": {
     "build": "npm run clean && tsc",
