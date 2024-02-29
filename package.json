@@ -15,7 +15,7 @@
     "format": "prettier --write .",
     "lint": "eslint . --ext=.ts",
     "prepublishOnly": "npm run build",
-    "test": "node --loader ts-node/esm --enable-source-maps bin/test.ts"
+    "test": "c8 node --loader ts-node/esm --enable-source-maps bin/test.ts"
   },
   "dependencies": {
     "@paralleldrive/cuid2": "^2.2.2",
@@ -32,6 +32,7 @@
     "@swc/core": "^1.4.0",
     "@testcontainers/redis": "^10.7.1",
     "@types/object-hash": "^3.0.6",
+    "c8": "^9.1.0",
     "del-cli": "^5.1.0",
     "eslint": "^8.56.0",
     "eslint-config-prettier": "^9.1.0",

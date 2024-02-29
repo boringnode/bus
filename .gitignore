@@ -1,8 +1,9 @@
 # Build
 build
 
-# Dependencies
+# Node & Dependencies
 node_modules
+coverage
 package-lock.json
 
 # Build tools specific
