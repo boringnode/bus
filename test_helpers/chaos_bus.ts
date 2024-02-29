@@ -6,20 +6,25 @@
  */
 
 import { ChaosInjector } from './chaos_injector.js'
-import type { BusDriver, BusMessage, Serializable, SubscribeHandler } from '../src/types/main.js'
+import type {
+  Transport,
+  TransportMessage,
+  Serializable,
+  SubscribeHandler,
+} from '../src/types/main.js'
 
-export class ChaosBus implements BusDriver {
+export class ChaosBus implements Transport {
   /**
    * The inner bus driver that is wrapped
    */
-  readonly #innerBus: BusDriver
+  readonly #innerBus: Transport
 
   /**
    * Reference to the chaos injector
    */
   #chaosInjector: ChaosInjector
 
-  constructor(innerBus: BusDriver) {
+  constructor(innerBus: Transport) {
     this.#innerBus = innerBus
     this.#chaosInjector = new ChaosInjector()
   }
@@ -30,7 +35,7 @@ export class ChaosBus implements BusDriver {
     return this.#innerBus
   }
 
-  getInnerBus<T extends BusDriver>(): T {
+  getInnerBus<T extends Transport>(): T {
     return this.#innerBus as T
   }
 
@@ -50,7 +55,7 @@ export class ChaosBus implements BusDriver {
     return this
   }
 
-  async publish(channel: string, message: Omit<BusMessage, 'busId'>) {
+  async publish(channel: string, message: Omit<TransportMessage, 'busId'>) {
     await this.#chaosInjector.injectChaos()
     return this.#innerBus.publish(channel, message)
   }
@@ -66,4 +71,6 @@ export class ChaosBus implements BusDriver {
   disconnect() {
     return this.#innerBus.disconnect()
   }
+
+  onReconnect(_callback: () => void): void {}
 }
