@@ -5,10 +5,16 @@
   "engines": {
     "node": ">=18.16.0"
   },
-  "main": "index.js",
+  "main": "build/index.js",
   "type": "module",
-  "files": [],
-  "exports": {},
+  "files": [
+    "build"
+  ],
+  "exports": {
+    ".": "./build/index.js",
+    "./drivers/*": "./build/drivers/*.js",
+    "./types/*": "./build/types/*.js"
+  },
   "scripts": {
     "build": "npm run clean && tsc",
     "clean": "del-cli build",
