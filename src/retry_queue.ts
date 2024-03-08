@@ -35,7 +35,7 @@ export class RetryQueue {
   }
 
   size() {
-    return this.#queue.size
+    return this.#queue.size()
   }
 
   async process(handler: (channel: string, message: TransportMessage) => Promise<boolean>) {
