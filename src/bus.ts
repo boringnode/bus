@@ -48,28 +48,29 @@ export class Bus {
     return this.#driver.subscribe(channel, async (message) => {
       await this.#processErrorRetryQueue()
 
-      debug(`received message ${message} from bus`)
+      debug('received message %j from bus', message)
       // @ts-expect-error - TODO: Weird typing issue
       handler(message)
     })
   }
 
   async publish(channel: string, message: Serializable) {
-    const composedMessage = { payload: message, busId: this.#busId }
-
     try {
-      debug(`publishing message ${composedMessage.payload} to bus`)
+      debug('publishing message %j to bus', message)
 
-      await this.#driver.publish(channel, composedMessage)
+      await this.#driver.publish(channel, message)
 
       return true
     } catch (error) {
-      debug(`error publishing message ${composedMessage.payload} to bus. Retrying later`)
+      debug('error publishing message %j to bus. Retrying later', message)
 
-      const wasAdded = this.#errorRetryQueue.enqueue(channel, composedMessage)
+      const wasAdded = this.#errorRetryQueue.enqueue(channel, {
+        payload: message,
+        busId: this.#busId,
+      })
       if (!wasAdded) return false
 
-      debug(`added message ${composedMessage.payload} to error retry queue`)
+      debug(`added message %j to error retry queue`, message)
       return false
     }
   }
