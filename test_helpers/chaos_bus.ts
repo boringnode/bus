@@ -6,12 +6,7 @@
  */
 
 import { ChaosInjector } from './chaos_injector.js'
-import type {
-  Transport,
-  TransportMessage,
-  Serializable,
-  SubscribeHandler,
-} from '../src/types/main.js'
+import type { Transport, Serializable, SubscribeHandler } from '../src/types/main.js'
 
 export class ChaosBus implements Transport {
   /**
@@ -55,7 +50,7 @@ export class ChaosBus implements Transport {
     return this
   }
 
-  async publish(channel: string, message: Omit<TransportMessage, 'busId'>) {
+  async publish(channel: string, message: Serializable) {
     await this.#chaosInjector.injectChaos()
     return this.#innerBus.publish(channel, message)
   }

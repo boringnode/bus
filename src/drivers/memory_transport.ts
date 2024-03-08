@@ -32,14 +32,14 @@ export class MemoryTransport implements Transport {
    */
   receivedMessages: any[] = []
 
-  async publish(channel: string, message: Omit<TransportMessage, 'busId'>) {
+  async publish(channel: string, message: Serializable) {
     const handlers = MemoryTransport.#subscriptions.get(channel)
 
     if (!handlers) {
       return
     }
 
-    const composedMessage = { ...message, busId: this.#id } satisfies TransportMessage
+    const composedMessage = { payload: message, busId: this.#id } satisfies TransportMessage
 
     for (const { handler, busId } of handlers) {
       if (busId === this.#id) continue

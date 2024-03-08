@@ -11,8 +11,8 @@ import debug from './debug.js'
 import type {
   ManagerConfig,
   Serializable,
+  SubscribeHandler,
   TransportConfig,
-  TransportMessage,
 } from './types/main.js'
 
 export class BusManager<KnownTransports extends Record<string, TransportConfig>> {
@@ -54,14 +54,11 @@ export class BusManager<KnownTransports extends Record<string, TransportConfig>>
     return transportInstance
   }
 
-  async publish(channel: string, message: Omit<TransportMessage, 'busId'>) {
+  async publish(channel: string, message: Serializable) {
     return this.use().publish(channel, message)
   }
 
-  subscribe<T extends Serializable>(
-    channel: string,
-    handler: (message: T) => Promise<void> | void
-  ) {
+  subscribe<T extends Serializable>(channel: string, handler: SubscribeHandler<T>) {
     return this.use().subscribe(channel, handler)
   }
 

@@ -45,10 +45,10 @@ export class RedisTransport implements Transport {
     this.#subscriber.disconnect()
   }
 
-  async publish(channel: string, message: Omit<TransportMessage, 'busId'>): Promise<void> {
+  async publish(channel: string, message: Serializable): Promise<void> {
     assert(this.#id, 'You must set an id before publishing a message')
 
-    const encoded = this.#encoder.encode({ ...message, busId: this.#id })
+    const encoded = this.#encoder.encode({ payload: message, busId: this.#id })
 
     await this.#publisher.publish(channel, encoded)
   }
@@ -73,6 +73,7 @@ export class RedisTransport implements Transport {
        */
       if (data.busId === this.#id) return
 
+      // @ts-expect-error - TODO: Weird typing issue
       handler(data.payload)
     })
   }

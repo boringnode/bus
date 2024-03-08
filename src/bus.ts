@@ -8,7 +8,7 @@
 import { createId } from '@paralleldrive/cuid2'
 import { RetryQueue } from './retry_queue.js'
 import debug from './debug.js'
-import type { RetryQueueOptions, Serializable, Transport, TransportMessage } from './types/main.js'
+import type { RetryQueueOptions, Serializable, SubscribeHandler, Transport } from './types/main.js'
 
 export class Bus {
   readonly #driver: Transport
@@ -31,7 +31,7 @@ export class Bus {
     debug(`start error retry queue processing with ${this.#errorRetryQueue.size()} messages`)
 
     return this.#errorRetryQueue.process(async (channel, message) => {
-      await this.publish(channel, message)
+      await this.publish(channel, message.payload)
       return true
     })
   }
@@ -42,23 +42,20 @@ export class Bus {
     await this.#processErrorRetryQueue()
   }
 
-  subscribe<T extends Serializable>(
-    channel: string,
-    handler: (message: T) => Promise<void> | void
-  ) {
+  subscribe<T extends Serializable>(channel: string, handler: SubscribeHandler<T>) {
     debug(`subscribing to channel ${channel}`)
 
     return this.#driver.subscribe(channel, async (message) => {
       await this.#processErrorRetryQueue()
 
-      debug(`received message ${message.payload} from bus`)
+      debug(`received message ${message} from bus`)
       // @ts-expect-error - TODO: Weird typing issue
-      handler(message.payload)
+      handler(message)
     })
   }
 
-  async publish(channel: string, message: Omit<TransportMessage, 'busId'>) {
-    const composedMessage = { ...message, busId: this.#busId }
+  async publish(channel: string, message: Serializable) {
+    const composedMessage = { payload: message, busId: this.#busId }
 
     try {
       debug(`publishing message ${composedMessage.payload} to bus`)

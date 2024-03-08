@@ -30,7 +30,7 @@ test.group('Redis Bus', (group) => {
       assert.fail('Bus should not receive message emitted by itself')
     })
 
-    await bus.publish('testing-channel', { payload: 'test' })
+    await bus.publish('testing-channel', 'test')
     await setTimeout(1000)
   }).disableTimeout()
 
@@ -50,7 +50,7 @@ test.group('Redis Bus', (group) => {
       done()
     })
 
-    await bus2.publish('testing-channel', { payload: 'test' })
+    await bus2.publish('testing-channel', 'test')
   }).waitForDone()
 
   test('bus should trigger onReconnect when the client reconnects', async ({ assert, cleanup }) => {
@@ -81,6 +81,6 @@ test.group('Redis Bus', (group) => {
       assert.deepEqual(payload, data)
     })
 
-    await bus.publish('testing-channel', { payload: data })
+    await bus.publish('testing-channel', data)
   })
 })

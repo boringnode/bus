@@ -23,7 +23,7 @@ export interface RedisTransportConfig extends RedisOptions {}
 export interface Transport {
   setId: (id: string) => Transport
   onReconnect: (callback: () => void) => void
-  publish: (channel: string, message: Omit<TransportMessage, 'busId'>) => Promise<void>
+  publish: (channel: string, message: Serializable) => Promise<void>
   subscribe: <T extends Serializable>(
     channel: string,
     handler: SubscribeHandler<T>
@@ -48,9 +48,7 @@ export interface RetryQueueOptions {
   maxSize?: number | null
 }
 
-export type SubscribeHandler<T extends Serializable> = (
-  payload: TransportMessage<T>
-) => void | Promise<void>
+export type SubscribeHandler<T extends Serializable> = (payload: T) => void | Promise<void>
 
 export type Serializable =
   | string
