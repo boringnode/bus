@@ -7,6 +7,7 @@
 
 import { assert } from '@poppinss/utils/assert'
 import { Redis, type RedisOptions } from 'ioredis'
+import debug from '../debug.js'
 import { JsonEncoder } from '../encoders/json_encoder.js'
 import type {
   Transport,
@@ -66,12 +67,17 @@ export class RedisTransport implements Transport {
     this.#subscriber.on('message', (receivedChannel, message) => {
       if (channel !== receivedChannel) return
 
+      debug('received message for channel "%s"', channel)
+
       const data = this.#encoder.decode<TransportMessage<T>>(message)
 
       /**
        * Ignore messages published by this bus instance
        */
-      if (data.busId === this.#id) return
+      if (data.busId === this.#id) {
+        debug('ignoring message published by the same bus instance')
+        return
+      }
 
       // @ts-expect-error - TODO: Weird typing issue
       handler(data.payload)

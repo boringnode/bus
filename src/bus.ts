@@ -56,13 +56,13 @@ export class Bus {
 
   async publish(channel: string, message: Serializable) {
     try {
-      debug('publishing message %j to bus', message)
+      debug('publishing message "%j" to channel "%s"', message, channel)
 
       await this.#driver.publish(channel, message)
 
       return true
     } catch (error) {
-      debug('error publishing message %j to bus. Retrying later', message)
+      debug('error publishing message "%j" to channel "%s". Retrying later', message, channel)
 
       const wasAdded = this.#errorRetryQueue.enqueue(channel, {
         payload: message,
