@@ -1,6 +1,6 @@
 {
   "name": "@rlanz/bus",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "",
   "engines": {
     "node": ">=18.16.0"
