@@ -45,8 +45,8 @@ test.group('Redis Bus', (group) => {
       await bus2.disconnect()
     })
 
-    await bus1.subscribe('testing-channel', (message) => {
-      assert.equal(message.payload, 'test')
+    await bus1.subscribe('testing-channel', (payload) => {
+      assert.equal(payload, 'test')
       done()
     })
 
@@ -77,8 +77,8 @@ test.group('Redis Bus', (group) => {
 
     const data = { test: 'test' }
 
-    await bus.subscribe('testing-channel', (message) => {
-      assert.deepEqual(message.payload, data)
+    await bus.subscribe('testing-channel', (payload) => {
+      assert.deepEqual(payload, data)
     })
 
     await bus.publish('testing-channel', { payload: data })

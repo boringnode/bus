@@ -8,7 +8,7 @@
 import { createId } from '@paralleldrive/cuid2'
 import { RetryQueue } from './retry_queue.js'
 import debug from './debug.js'
-import type { RetryQueueOptions, Transport, TransportMessage } from './types/main.js'
+import type { RetryQueueOptions, Serializable, Transport, TransportMessage } from './types/main.js'
 
 export class Bus {
   readonly #driver: Transport
@@ -42,14 +42,18 @@ export class Bus {
     await this.#processErrorRetryQueue()
   }
 
-  subscribe(channel: string, handler: (message: any) => void) {
+  subscribe<T extends Serializable>(
+    channel: string,
+    handler: (message: T) => Promise<void> | void
+  ) {
     debug(`subscribing to channel ${channel}`)
 
     return this.#driver.subscribe(channel, async (message) => {
       await this.#processErrorRetryQueue()
 
       debug(`received message ${message.payload} from bus`)
-      handler(message)
+      // @ts-expect-error - TODO: Weird typing issue
+      handler(message.payload)
     })
   }
 

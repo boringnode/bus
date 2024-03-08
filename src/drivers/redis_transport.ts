@@ -73,7 +73,7 @@ export class RedisTransport implements Transport {
        */
       if (data.busId === this.#id) return
 
-      handler(data)
+      handler(data.payload)
     })
   }
 

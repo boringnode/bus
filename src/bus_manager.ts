@@ -11,7 +11,6 @@ import debug from './debug.js'
 import type {
   ManagerConfig,
   Serializable,
-  SubscribeHandler,
   TransportConfig,
   TransportMessage,
 } from './types/main.js'
@@ -59,7 +58,10 @@ export class BusManager<KnownTransports extends Record<string, TransportConfig>>
     return this.use().publish(channel, message)
   }
 
-  subscribe<T extends Serializable>(channel: string, handler: SubscribeHandler<T>) {
+  subscribe<T extends Serializable>(
+    channel: string,
+    handler: (message: T) => Promise<void> | void
+  ) {
     return this.use().subscribe(channel, handler)
   }
 
