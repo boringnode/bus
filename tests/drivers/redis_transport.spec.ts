@@ -53,6 +53,8 @@ test.group('Redis Transport', (group) => {
       done()
     })
 
+    await setTimeout(200)
+
     await transport2.publish('testing-channel', 'test')
   }).waitForDone()
 
