@@ -5,7 +5,7 @@
  * @copyright Romain Lanz <romain.lanz@pm.me>
  */
 
-import type { Transport, TransportMessage, Serializable, SubscribeHandler } from '../types/main.js'
+import type { Transport, Serializable, SubscribeHandler } from '../types/main.js'
 
 export class MemoryTransport implements Transport {
   #id!: string
@@ -39,12 +39,10 @@ export class MemoryTransport implements Transport {
       return
     }
 
-    const composedMessage = { payload: message, busId: this.#id } satisfies TransportMessage
-
     for (const { handler, busId } of handlers) {
       if (busId === this.#id) continue
 
-      handler(composedMessage)
+      handler(message)
     }
   }
 
