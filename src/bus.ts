@@ -29,7 +29,7 @@ export class Bus {
           : string.milliseconds.parse(options?.retryQueue?.retryInterval)
 
       this.#retryQueueInterval = setInterval(() => {
-        void this.#processErrorRetryQueue()
+        void this.processErrorRetryQueue()
       }, intervalValue)
     }
 
@@ -40,7 +40,7 @@ export class Bus {
     return this.#errorRetryQueue
   }
 
-  #processErrorRetryQueue() {
+  processErrorRetryQueue() {
     debug(`start error retry queue processing with ${this.#errorRetryQueue.size()} messages`)
 
     return this.#errorRetryQueue.process(async (channel, message) => {
@@ -52,15 +52,13 @@ export class Bus {
   async #onReconnect() {
     debug(`bus driver ${this.#driver.constructor.name} reconnected`)
 
-    await this.#processErrorRetryQueue()
+    await this.processErrorRetryQueue()
   }
 
   subscribe<T extends Serializable>(channel: string, handler: SubscribeHandler<T>) {
     debug(`subscribing to channel ${channel}`)
 
     return this.#driver.subscribe(channel, async (message) => {
-      await this.#processErrorRetryQueue()
-
       debug('received message %j from bus', message)
       // @ts-expect-error - TODO: Weird typing issue
       handler(message)
