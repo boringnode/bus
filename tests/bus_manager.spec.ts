@@ -98,4 +98,78 @@ test.group('Bus Manager', () => {
       removeDuplicates: true,
     })
   })
+
+  test('publish message using default transport', async ({ assert }) => {
+    const manager = new BusManager({
+      default: 'memory1',
+      transports: {
+        memory1: {
+          driver: () => new MemoryTransport(),
+        },
+        memory2: {
+          driver: () => new MemoryTransport(),
+        },
+      },
+    })
+
+    let count = 0
+
+    await manager.use('memory2').subscribe('testing-channel', () => {
+      count++
+    })
+
+    await manager.publish('testing-channel', 'test')
+
+    assert.equal(count, 1)
+  })
+
+  test('subscribe message using default transport', async ({ assert }) => {
+    const manager = new BusManager({
+      default: 'memory1',
+      transports: {
+        memory1: {
+          driver: () => new MemoryTransport(),
+        },
+        memory2: {
+          driver: () => new MemoryTransport(),
+        },
+      },
+    })
+
+    let count = 0
+
+    await manager.subscribe('testing-channel', () => {
+      count++
+    })
+
+    await manager.use('memory2').publish('testing-channel', 'test')
+
+    assert.equal(count, 1)
+  })
+
+  test('unsubscribe message using default transport', async ({ assert }) => {
+    const manager = new BusManager({
+      default: 'memory1',
+      transports: {
+        memory1: {
+          driver: () => new MemoryTransport(),
+        },
+        memory2: {
+          driver: () => new MemoryTransport(),
+        },
+      },
+    })
+
+    let count = 0
+
+    await manager.subscribe('testing-channel', () => {
+      count++
+    })
+
+    await manager.unsubscribe('testing-channel')
+
+    await manager.use('memory2').publish('testing-channel', 'test')
+
+    assert.equal(count, 0)
+  })
 })
