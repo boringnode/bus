@@ -11,7 +11,7 @@ import { RedisContainer, StartedRedisContainer } from '@testcontainers/redis'
 import { RedisTransport } from '../../src/drivers/redis_transport.js'
 import { JsonEncoder } from '../../src/encoders/json_encoder.js'
 
-test.group('Redis Bus', (group) => {
+test.group('Redis Transport', (group) => {
   let container: StartedRedisContainer
 
   group.setup(async () => {
@@ -22,43 +22,49 @@ test.group('Redis Bus', (group) => {
     }
   })
 
-  test('bus should not receive message emitted by itself', async ({ assert, cleanup }) => {
-    const bus = new RedisTransport(container.getConnectionUrl()).setId('bus')
-    cleanup(() => bus.disconnect())
+  test('transport should not receive message emitted by itself', async ({ assert, cleanup }) => {
+    const transport = new RedisTransport(container.getConnectionUrl()).setId('bus')
+    cleanup(() => transport.disconnect())
 
-    await bus.subscribe('testing-channel', () => {
+    await transport.subscribe('testing-channel', () => {
       assert.fail('Bus should not receive message emitted by itself')
     })
 
-    await bus.publish('testing-channel', 'test')
+    await transport.publish('testing-channel', 'test')
     await setTimeout(1000)
   }).disableTimeout()
 
-  test('bus should receive message emitted by another bus', async ({ assert, cleanup }, done) => {
+  test('transport should receive message emitted by another bus', async ({
+    assert,
+    cleanup,
+  }, done) => {
     assert.plan(1)
 
-    const bus1 = new RedisTransport(container.getConnectionUrl()).setId('bus1')
-    const bus2 = new RedisTransport(container.getConnectionUrl()).setId('bus2')
+    const transport1 = new RedisTransport(container.getConnectionUrl()).setId('bus1')
+    const transport2 = new RedisTransport(container.getConnectionUrl()).setId('bus2')
 
     cleanup(async () => {
-      await bus1.disconnect()
-      await bus2.disconnect()
+      await transport1.disconnect()
+      await transport2.disconnect()
     })
 
-    await bus1.subscribe('testing-channel', (payload) => {
+    await transport1.subscribe('testing-channel', (payload) => {
       assert.equal(payload, 'test')
       done()
     })
 
-    await bus2.publish('testing-channel', 'test')
+    await transport2.publish('testing-channel', 'test')
   }).waitForDone()
 
-  test('bus should trigger onReconnect when the client reconnects', async ({ assert, cleanup }) => {
-    const bus = new RedisTransport(container.getConnectionUrl()).setId('bus')
-    cleanup(() => bus.disconnect())
+  test('transport should trigger onReconnect when the client reconnects', async ({
+    assert,
+    cleanup,
+  }) => {
+    const transport = new RedisTransport(container.getConnectionUrl()).setId('bus')
+    cleanup(() => transport.disconnect())
 
     let onReconnectTriggered = false
-    bus.onReconnect(() => {
+    transport.onReconnect(() => {
       onReconnectTriggered = true
     })
 
@@ -72,15 +78,17 @@ test.group('Redis Bus', (group) => {
     assert,
     cleanup,
   }) => {
-    const bus = new RedisTransport(container.getConnectionUrl(), new JsonEncoder()).setId('bus')
-    cleanup(() => bus.disconnect())
+    const transport = new RedisTransport(container.getConnectionUrl(), new JsonEncoder()).setId(
+      'bus'
+    )
+    cleanup(() => transport.disconnect())
 
     const data = { test: 'test' }
 
-    await bus.subscribe('testing-channel', (payload) => {
+    await transport.subscribe('testing-channel', (payload) => {
       assert.deepEqual(payload, data)
     })
 
-    await bus.publish('testing-channel', data)
+    await transport.publish('testing-channel', data)
   })
 })
