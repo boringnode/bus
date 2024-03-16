@@ -8,30 +8,30 @@
 import { ChaosInjector } from './chaos_injector.js'
 import type { Transport, Serializable, SubscribeHandler } from '../src/types/main.js'
 
-export class ChaosBus implements Transport {
+export class ChaosTransport implements Transport {
   /**
-   * The inner bus driver that is wrapped
+   * The inner transport driver that is wrapped
    */
-  readonly #innerBus: Transport
+  readonly #innerTransport: Transport
 
   /**
    * Reference to the chaos injector
    */
   #chaosInjector: ChaosInjector
 
-  constructor(innerBus: Transport) {
-    this.#innerBus = innerBus
+  constructor(innerTransport: Transport) {
+    this.#innerTransport = innerTransport
     this.#chaosInjector = new ChaosInjector()
   }
 
   setId(id: string) {
-    this.#innerBus.setId(id)
+    this.#innerTransport.setId(id)
 
-    return this.#innerBus
+    return this.#innerTransport
   }
 
-  getInnerBus<T extends Transport>(): T {
-    return this.#innerBus as T
+  getInnerTransport<T extends Transport>(): T {
+    return this.#innerTransport as T
   }
 
   /**
@@ -52,19 +52,19 @@ export class ChaosBus implements Transport {
 
   async publish(channel: string, message: Serializable) {
     await this.#chaosInjector.injectChaos()
-    return this.#innerBus.publish(channel, message)
+    return this.#innerTransport.publish(channel, message)
   }
 
   async subscribe<T extends Serializable>(channel: string, handler: SubscribeHandler<T>) {
-    return this.#innerBus.subscribe(channel, handler)
+    return this.#innerTransport.subscribe(channel, handler)
   }
 
   unsubscribe(channel: string) {
-    return this.#innerBus.unsubscribe(channel)
+    return this.#innerTransport.unsubscribe(channel)
   }
 
   disconnect() {
-    return this.#innerBus.disconnect()
+    return this.#innerTransport.disconnect()
   }
 
   onReconnect(_callback: () => void): void {}
