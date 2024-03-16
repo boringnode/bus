@@ -5,6 +5,7 @@
  * @copyright Romain Lanz <romain.lanz@pm.me>
  */
 
+import string from '@poppinss/utils/string'
 import { createId } from '@paralleldrive/cuid2'
 import { RetryQueue } from './retry_queue.js'
 import debug from './debug.js'
@@ -14,11 +15,23 @@ export class Bus {
   readonly #driver: Transport
   readonly #busId: string
   readonly #errorRetryQueue: RetryQueue
+  readonly #retryQueueInterval: NodeJS.Timeout | undefined
 
-  constructor(driver: Transport, options: { retryQueue?: RetryQueueOptions }) {
+  constructor(driver: Transport, options?: { retryQueue?: RetryQueueOptions }) {
     this.#driver = driver
     this.#busId = createId()
-    this.#errorRetryQueue = new RetryQueue(options.retryQueue)
+    this.#errorRetryQueue = new RetryQueue(options?.retryQueue)
+
+    if (options?.retryQueue?.retryInterval) {
+      const intervalValue =
+        typeof options?.retryQueue?.retryInterval === 'number'
+          ? options?.retryQueue?.retryInterval
+          : string.milliseconds.parse(options?.retryQueue?.retryInterval)
+
+      this.#retryQueueInterval = setInterval(() => {
+        void this.#processErrorRetryQueue()
+      }, intervalValue)
+    }
 
     driver.setId(this.#busId).onReconnect(() => this.#onReconnect())
   }
@@ -68,6 +81,7 @@ export class Bus {
         payload: message,
         busId: this.#busId,
       })
+
       if (!wasAdded) return false
 
       debug(`added message %j to error retry queue`, message)
@@ -76,6 +90,10 @@ export class Bus {
   }
 
   disconnect() {
+    if (this.#retryQueueInterval) {
+      clearInterval(this.#retryQueueInterval)
+    }
+
     return this.#driver.disconnect()
   }
 
