@@ -15,7 +15,12 @@ import type {
   TransportMessage,
   Serializable,
   SubscribeHandler,
+  RedisTransportConfig,
 } from '../types/main.js'
+
+export function redis(config: RedisTransportConfig, encoder?: TransportEncoder) {
+  return () => new RedisTransport(config, encoder)
+}
 
 export class RedisTransport implements Transport {
   readonly #publisher: Redis

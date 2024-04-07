@@ -8,7 +8,7 @@
 import { test } from '@japa/runner'
 import { Bus } from '../src/bus.js'
 import { BusManager } from '../src/bus_manager.js'
-import { MemoryTransport } from '../src/drivers/memory_transport.js'
+import { MemoryTransport } from '../src/transports/memory_transport.js'
 
 test.group('Bus Manager', () => {
   test('create bus instance from the manager', ({ assert, expectTypeOf }) => {

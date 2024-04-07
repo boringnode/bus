@@ -7,6 +7,10 @@
 
 import type { Transport, Serializable, SubscribeHandler } from '../types/main.js'
 
+export function memory() {
+  return () => new MemoryTransport()
+}
+
 export class MemoryTransport implements Transport {
   #id!: string
 

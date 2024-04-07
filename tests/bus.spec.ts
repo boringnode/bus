@@ -8,8 +8,8 @@
 import { setTimeout } from 'node:timers/promises'
 import { test } from '@japa/runner'
 import { Bus } from '../src/bus.js'
-import { MemoryTransport } from '../src/drivers/memory_transport.js'
 import { ChaosTransport } from '../test_helpers/chaos_transport.js'
+import { MemoryTransport } from '../src/transports/memory_transport.js'
 
 const kTestingChannel = 'testing-channel'
 
