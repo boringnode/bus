@@ -112,4 +112,23 @@ test.group('Bus', () => {
 
     assert.equal(count, 0)
   })
+
+  test('should not remove item from queue if publish failed', async ({ assert, cleanup }) => {
+    const transport = new ChaosTransport(new MemoryTransport())
+    const bus = new Bus(transport, { retryQueue: { enabled: true } })
+
+    cleanup(async () => {
+      await bus.disconnect()
+    })
+
+    transport.alwaysThrow()
+
+    await bus.publish(kTestingChannel, 'test')
+
+    assert.deepEqual(bus.getRetryQueue().size(), 1)
+
+    await bus.processErrorRetryQueue()
+
+    assert.deepEqual(bus.getRetryQueue().size(), 1)
+  })
 })

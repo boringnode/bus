@@ -44,8 +44,7 @@ export class Bus {
     debug(`start error retry queue processing with ${this.#errorRetryQueue.size()} messages`)
 
     return this.#errorRetryQueue.process(async (channel, message) => {
-      await this.publish(channel, message.payload)
-      return true
+      return await this.publish(channel, message.payload)
     })
   }
 
