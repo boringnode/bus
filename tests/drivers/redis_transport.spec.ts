@@ -91,6 +91,8 @@ test.group('Redis Transport', (group) => {
       assert.deepEqual(payload, data)
     })
 
+    await setTimeout(200)
+
     await transport.publish('testing-channel', data)
   })
 })
