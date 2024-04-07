@@ -1,5 +1,5 @@
 {
-  "name": "@rlanz/bus",
+  "name": "@boringnode/bus",
   "version": "0.4.0",
   "description": "A simple and lean driver-based service bus implementation",
   "engines": {
