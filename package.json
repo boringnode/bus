@@ -1,6 +1,6 @@
 {
   "name": "@boringnode/bus",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "A simple and lean driver-based service bus implementation",
   "engines": {
     "node": ">=20.11.1"
