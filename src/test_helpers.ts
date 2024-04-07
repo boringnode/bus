@@ -5,4 +5,4 @@
  * @copyright Boring Node
  */
 
-export { ChaosTransport } from "../test_helpers/chaos_transport.js";
+export { ChaosTransport } from '../test_helpers/chaos_transport.js'
