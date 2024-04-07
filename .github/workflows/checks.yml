@@ -6,6 +6,8 @@ on:
 jobs:
   test:
     uses: boringnode/.github/.github/workflows/test.yml@main
+    with:
+      disable-windows: true
 
   lint:
     uses: boringnode/.github/.github/workflows/lint.yml@main
