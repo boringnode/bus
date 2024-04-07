@@ -25,7 +25,8 @@
     "release": "npx release-it",
     "update:toc": "npx doctoc README.md",
     "test": "c8 node --loader ts-node/esm --enable-source-maps bin/test.ts",
-    "quick:test": "node --loader ts-node/esm --enable-source-maps bin/test.ts"
+    "quick:test": "node --loader ts-node/esm --enable-source-maps bin/test.ts",
+    "typecheck": "tsc --noEmit"
   },
   "peerDependencies": {
     "ioredis": "^5.0.0"
