@@ -1,7 +1,7 @@
 {
   "name": "@rlanz/bus",
   "version": "0.3.0",
-  "description": "",
+  "description": "A simple and lean driver-based service bus implementation",
   "engines": {
     "node": ">=20.11.1"
   },
@@ -64,7 +64,7 @@
   },
   "author": "Romain Lanz <romain.lanz@pm.me>",
   "license": "MIT",
-  "keywords": [],
+  "keywords": ["bus", "transport", "service bus"],
   "prettier": "@adonisjs/prettier-config",
   "eslintConfig": {
     "extends": "@adonisjs/eslint-config/package"
