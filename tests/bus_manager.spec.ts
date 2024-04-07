@@ -16,7 +16,7 @@ test.group('Bus Manager', () => {
       default: 'memory',
       transports: {
         memory: {
-          driver: () => new MemoryTransport(),
+          transport: () => new MemoryTransport(),
         },
       },
     })
@@ -32,10 +32,10 @@ test.group('Bus Manager', () => {
       default: 'memory',
       transports: {
         memory: {
-          driver: () => new MemoryTransport(),
+          transport: () => new MemoryTransport(),
         },
         memory1: {
-          driver: () => new MemoryTransport(),
+          transport: () => new MemoryTransport(),
         },
       },
     })
@@ -53,7 +53,7 @@ test.group('Bus Manager', () => {
       default: 'memory',
       transports: {
         memory: {
-          driver: () => new MemoryTransport(),
+          transport: () => new MemoryTransport(),
         },
       },
     })
@@ -65,7 +65,7 @@ test.group('Bus Manager', () => {
     const manager = new BusManager({
       transports: {
         memory: {
-          driver: () => new MemoryTransport(),
+          transport: () => new MemoryTransport(),
         },
       },
     })
@@ -81,7 +81,7 @@ test.group('Bus Manager', () => {
       default: 'memory',
       transports: {
         memory: {
-          driver: () => new MemoryTransport(),
+          transport: () => new MemoryTransport(),
           retryQueue: {
             enabled: false,
             maxSize: 100,
@@ -104,10 +104,10 @@ test.group('Bus Manager', () => {
       default: 'memory1',
       transports: {
         memory1: {
-          driver: () => new MemoryTransport(),
+          transport: () => new MemoryTransport(),
         },
         memory2: {
-          driver: () => new MemoryTransport(),
+          transport: () => new MemoryTransport(),
         },
       },
     })
@@ -128,10 +128,10 @@ test.group('Bus Manager', () => {
       default: 'memory1',
       transports: {
         memory1: {
-          driver: () => new MemoryTransport(),
+          transport: () => new MemoryTransport(),
         },
         memory2: {
-          driver: () => new MemoryTransport(),
+          transport: () => new MemoryTransport(),
         },
       },
     })
@@ -152,10 +152,10 @@ test.group('Bus Manager', () => {
       default: 'memory1',
       transports: {
         memory1: {
-          driver: () => new MemoryTransport(),
+          transport: () => new MemoryTransport(),
         },
         memory2: {
-          driver: () => new MemoryTransport(),
+          transport: () => new MemoryTransport(),
         },
       },
     })

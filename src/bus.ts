@@ -12,13 +12,13 @@ import debug from './debug.js'
 import type { RetryQueueOptions, Serializable, SubscribeHandler, Transport } from './types/main.js'
 
 export class Bus {
-  readonly #driver: Transport
+  readonly #transport: Transport
   readonly #busId: string
   readonly #errorRetryQueue: RetryQueue
   readonly #retryQueueInterval: NodeJS.Timeout | undefined
 
-  constructor(driver: Transport, options?: { retryQueue?: RetryQueueOptions }) {
-    this.#driver = driver
+  constructor(transport: Transport, options?: { retryQueue?: RetryQueueOptions }) {
+    this.#transport = transport
     this.#busId = createId()
     this.#errorRetryQueue = new RetryQueue(options?.retryQueue)
 
@@ -33,7 +33,7 @@ export class Bus {
       }, intervalValue)
     }
 
-    driver.setId(this.#busId).onReconnect(() => this.#onReconnect())
+    transport.setId(this.#busId).onReconnect(() => this.#onReconnect())
   }
 
   getRetryQueue() {
@@ -50,7 +50,7 @@ export class Bus {
   }
 
   async #onReconnect() {
-    debug(`bus driver ${this.#driver.constructor.name} reconnected`)
+    debug(`bus transport ${this.#transport.constructor.name} reconnected`)
 
     await this.processErrorRetryQueue()
   }
@@ -58,7 +58,7 @@ export class Bus {
   subscribe<T extends Serializable>(channel: string, handler: SubscribeHandler<T>) {
     debug(`subscribing to channel ${channel}`)
 
-    return this.#driver.subscribe(channel, async (message) => {
+    return this.#transport.subscribe(channel, async (message) => {
       debug('received message %j from bus', message)
       // @ts-expect-error - TODO: Weird typing issue
       handler(message)
@@ -69,7 +69,7 @@ export class Bus {
     try {
       debug('publishing message "%j" to channel "%s"', message, channel)
 
-      await this.#driver.publish(channel, message)
+      await this.#transport.publish(channel, message)
 
       return true
     } catch (error) {
@@ -92,10 +92,10 @@ export class Bus {
       clearInterval(this.#retryQueueInterval)
     }
 
-    return this.#driver.disconnect()
+    return this.#transport.disconnect()
   }
 
   unsubscribe(channel: string) {
-    return this.#driver.unsubscribe(channel)
+    return this.#transport.unsubscribe(channel)
   }
 }
