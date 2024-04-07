@@ -23,7 +23,7 @@ export interface ManagerConfig<KnownTransports extends Record<string, TransportC
 }
 
 export interface TransportConfig {
-  driver: TransportFactory
+  transport: TransportFactory
   retryQueue?: RetryQueueOptions
 }
 

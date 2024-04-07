@@ -16,11 +16,11 @@
 
 `@rlanz/bus` is a service bus implementation for Node.js. It is designed to be simple and easy to use.
 
-Currently, it supports the following drivers:
+Currently, it supports the following transports:
 
 <p>
-👉 <strong>Memory:</strong> A simple in-memory driver for testing purposes.<br />
-👉 <strong>Redis:</strong> A Redis driver for production usage.
+👉 <strong>Memory:</strong> A simple in-memory transport for testing purposes.<br />
+👉 <strong>Redis:</strong> A Redis transport for production usage.
 </p>
 
 ## Table of Contents
@@ -46,17 +46,17 @@ The module exposes a manager that can be used to register buses.
 
 ```typescript
 import { BusManager } from '@rlanz/bus'
-import { redis } from "@rlanz/bus/drivers/redis"
-import { memory } from "@rlanz/bus/drivers/memory"
+import { redis } from '@rlanz/bus/transports/redis'
+import { memory } from '@rlanz/bus/transports/memory'
 
 const manager = new BusManager({
   default: 'main',
   transports: {
     main: {
-      driver: memory(),
+      transport: memory(),
     },
     redis: {
-      driver: redis({
+      transport: redis({
         host: 'localhost',
         port: 6379,
       }),
@@ -81,6 +81,26 @@ By default, the bus will use the `default` transport. You can specify different 
 manager.use('redis').publish('channel', 'Hello world')
 ```
 
+### Without the manager
+
+If you don't need multiple buses, you can create a single bus directly by importing the transports and the Bus class.
+
+```typescript
+import { Bus } from '@rlanz/bus'
+import { RedisTransport } from '@rlanz/bus/transports/redis'
+
+const transport = new RedisTransport({
+  host: 'localhost',
+  port: 6379,
+})
+
+const bus = new Bus(transport, {
+  retryQueue: {
+    retryInterval: '100ms'
+  }
+})
+```
+
 ## Retry Queue
 
 The bus also supports a retry queue. When a message fails to be published, it will be moved to the retry queue.
@@ -92,7 +112,7 @@ const manager = new BusManager({
   default: 'main',
   transports: {
     main: {
-      driver: redis({
+      transport: redis({
         host: 'localhost',
         port: 6379,
       }),
@@ -124,6 +144,26 @@ export interface RetryQueueOptions {
   // The interval between each retry (default: false)
   retryInterval?: Duration | false
 }
+```
+
+## Test helpers
+
+The module also provides some test helpers to make it easier to test the code that relies on the bus. First, you can use the `MemoryTransport` to create a bus that uses an in-memory transport.
+
+You can also use the `ChaosTransport` to simulate a transport that fails randomly, in order to test the resilience of your code.
+
+```ts
+import { Bus } from '@rlanz/bus'
+import { ChaosTransport } from '@rlanz/bus/test_helpers'
+
+const buggyTransport = new ChaosTransport(new MemoryTransport())
+const bus = new Bus(buggyTransport)
+
+/**
+ * Now, every time you will try to publish a message, the transport 
+ * will throw an error.
+ */
+buggyTransport.alwaysThrow()
 ```
 
 [gh-workflow-image]: https://img.shields.io/github/actions/workflow/status/romainlanz/bus/test.yml?branch=main&style=for-the-badge

@@ -10,7 +10,7 @@ import type { Transport, Serializable, SubscribeHandler } from '../src/types/mai
 
 export class ChaosTransport implements Transport {
   /**
-   * The inner transport driver that is wrapped
+   * The inner transport that is wrapped
    */
   readonly #innerTransport: Transport
 

@@ -7,7 +7,7 @@
 
 import { setTimeout } from 'node:timers/promises'
 import { test } from '@japa/runner'
-import { MemoryTransport } from '../../src/drivers/memory_transport.js'
+import { MemoryTransport } from '../../src/transports/memory_transport.js'
 
 test.group('Memory Transport', () => {
   test('transport should not receive message emitted by itself', async ({ assert, cleanup }) => {

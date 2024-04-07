@@ -12,7 +12,8 @@
   ],
   "exports": {
     ".": "./build/index.js",
-    "./drivers/*": "./build/drivers/*.js",
+    "./transports/*": "./build/src/transports/*.js",
+    "./test_helpers": "./build/src/test_helpers/index.js",
     "./types/*": "./build/src/types/*.js"
   },
   "scripts": {
@@ -24,6 +25,14 @@
     "release": "npx release-it",
     "update:toc": "npx doctoc README.md",
     "test": "c8 node --loader ts-node/esm --enable-source-maps bin/test.ts"
+  },
+  "peerDependencies": {
+    "ioredis": "^5.0.0"
+  },
+  "peerDependenciesMeta": {
+    "ioredis": {
+      "optional": true
+    }
   },
   "dependencies": {
     "@paralleldrive/cuid2": "^2.2.2",
@@ -39,6 +48,7 @@
     "@japa/runner": "^3.1.1",
     "@swc/core": "^1.4.0",
     "@testcontainers/redis": "^10.7.1",
+    "@types/node": "^20.12.5",
     "@types/object-hash": "^3.0.6",
     "c8": "^9.1.0",
     "del-cli": "^5.1.0",

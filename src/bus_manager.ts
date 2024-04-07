@@ -43,11 +43,11 @@ export class BusManager<KnownTransports extends Record<string, TransportConfig>>
       return cachedTransport
     }
 
-    const driverConfig = this.#transports[transportToUse]
+    const transportConfig = this.#transports[transportToUse]
 
     debug('creating new transport instance for %s', transportToUse)
-    const transportInstance = new Bus(driverConfig.driver(), {
-      retryQueue: driverConfig.retryQueue,
+    const transportInstance = new Bus(transportConfig.transport(), {
+      retryQueue: transportConfig.retryQueue,
     })
     this.#transportsCache[transportToUse] = transportInstance
 
