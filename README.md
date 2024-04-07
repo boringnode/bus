@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="https://github.com/RomainLanz/bus/assets/2793951/fb93dc3d-d05d-40e4-a66b-35bb2a161750" alt="@rlanz/bus">
+  <img src="https://github.com/RomainLanz/bus/assets/2793951/fb93dc3d-d05d-40e4-a66b-35bb2a161750" alt="@boringnode/bus">
 </div>
 
 <div align="center">
@@ -14,7 +14,7 @@
 
 <hr />
 
-`@rlanz/bus` is a service bus implementation for Node.js. It is designed to be simple and easy to use.
+`@boringnode/bus` is a service bus implementation for Node.js. It is designed to be simple and easy to use.
 
 Currently, it supports the following transports:
 
@@ -37,7 +37,7 @@ Currently, it supports the following transports:
 ## Installation
 
 ```bash
-npm install @rlanz/bus
+npm install @boringnode/bus
 ```
 
 ## Usage
@@ -45,9 +45,9 @@ npm install @rlanz/bus
 The module exposes a manager that can be used to register buses.
 
 ```typescript
-import { BusManager } from '@rlanz/bus'
-import { redis } from '@rlanz/bus/transports/redis'
-import { memory } from '@rlanz/bus/transports/memory'
+import { BusManager } from '@boringnode/bus'
+import { redis } from '@boringnode/bus/transports/redis'
+import { memory } from '@boringnode/bus/transports/memory'
 
 const manager = new BusManager({
   default: 'main',
@@ -86,8 +86,8 @@ manager.use('redis').publish('channel', 'Hello world')
 If you don't need multiple buses, you can create a single bus directly by importing the transports and the Bus class.
 
 ```typescript
-import { Bus } from '@rlanz/bus'
-import { RedisTransport } from '@rlanz/bus/transports/redis'
+import { Bus } from '@boringnode/bus'
+import { RedisTransport } from '@boringnode/bus/transports/redis'
 
 const transport = new RedisTransport({
   host: 'localhost',
@@ -153,8 +153,8 @@ The module also provides some test helpers to make it easier to test the code th
 You can also use the `ChaosTransport` to simulate a transport that fails randomly, in order to test the resilience of your code.
 
 ```ts
-import { Bus } from '@rlanz/bus'
-import { ChaosTransport } from '@rlanz/bus/test_helpers'
+import { Bus } from '@boringnode/bus'
+import { ChaosTransport } from '@boringnode/bus/test_helpers'
 
 const buggyTransport = new ChaosTransport(new MemoryTransport())
 const bus = new Bus(buggyTransport)
@@ -168,11 +168,11 @@ buggyTransport.alwaysThrow()
 
 [gh-workflow-image]: https://img.shields.io/github/actions/workflow/status/romainlanz/bus/test.yml?branch=main&style=for-the-badge
 [gh-workflow-url]: https://github.com/romainlanz/bus/actions/workflows/test.yml
-[npm-image]: https://img.shields.io/npm/v/@rlanz/bus.svg?style=for-the-badge&logo=npm
-[npm-url]: https://www.npmjs.com/package/@rlanz/bus
-[npm-download-image]: https://img.shields.io/npm/dm/@rlanz/bus?style=for-the-badge
-[npm-download-url]: https://www.npmjs.com/package/@rlanz/bus
+[npm-image]: https://img.shields.io/npm/v/@boringnode/bus.svg?style=for-the-badge&logo=npm
+[npm-url]: https://www.npmjs.com/package/@boringnode/bus
+[npm-download-image]: https://img.shields.io/npm/dm/@boringnode/bus?style=for-the-badge
+[npm-download-url]: https://www.npmjs.com/package/@boringnode/bus
 [typescript-image]: https://img.shields.io/badge/Typescript-294E80.svg?style=for-the-badge&logo=typescript
 [typescript-url]: https://www.typescriptlang.org
-[license-image]: https://img.shields.io/npm/l/@rlanz/bus?color=blueviolet&style=for-the-badge
+[license-image]: https://img.shields.io/npm/l/@boringnode/bus?color=blueviolet&style=for-the-badge
 [license-url]: LICENSE.md
