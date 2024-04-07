@@ -13,6 +13,7 @@
   "exports": {
     ".": "./build/index.js",
     "./transports/*": "./build/src/transports/*.js",
+    "./test_helpers": "./build/src/test_helpers/index.js",
     "./types/*": "./build/src/types/*.js"
   },
   "scripts": {
