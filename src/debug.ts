@@ -1,8 +1,8 @@
 /**
- * @rlanz/bus
+ * @boringnode/bus
  *
  * @license MIT
- * @copyright Romain Lanz <romain.lanz@pm.me>
+ * @copyright Boring Node
  */
 
 import { debuglog } from 'node:util'
