@@ -166,8 +166,8 @@ const bus = new Bus(buggyTransport)
 buggyTransport.alwaysThrow()
 ```
 
-[gh-workflow-image]: https://img.shields.io/github/actions/workflow/status/romainlanz/bus/test.yml?branch=main&style=for-the-badge
-[gh-workflow-url]: https://github.com/romainlanz/bus/actions/workflows/test.yml
+[gh-workflow-image]: https://img.shields.io/github/actions/workflow/status/boringnode/bus/checks.yml?branch=main&style=for-the-badge
+[gh-workflow-url]: https://github.com/boringnode/bus/actions/workflows/checks.yml
 [npm-image]: https://img.shields.io/npm/v/@boringnode/bus.svg?style=for-the-badge&logo=npm
 [npm-url]: https://www.npmjs.com/package/@boringnode/bus
 [npm-download-image]: https://img.shields.io/npm/dm/@boringnode/bus?style=for-the-badge
