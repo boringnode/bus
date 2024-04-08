@@ -7,4 +7,4 @@
 
 import { debuglog } from 'node:util'
 
-export default debuglog('rlanz:bus')
+export default debuglog('boringnode:bus')
