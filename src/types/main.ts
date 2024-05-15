@@ -27,7 +27,14 @@ export interface TransportConfig {
   retryQueue?: RetryQueueOptions
 }
 
-export interface RedisTransportConfig extends RedisOptions {}
+export interface RedisTransportConfig extends RedisOptions {
+  /**
+   * If true, we will use `messageBuffer` event instead of `message` event
+   * that is emitted by ioredis. `messageBuffer` will returns a buffer instead
+   * of a string and this is useful when you are dealing with binary data.
+   */
+  useMessageBuffer?: boolean
+}
 
 export interface Transport {
   setId: (id: string) => Transport
@@ -48,7 +55,7 @@ export interface TransportMessage<T extends Serializable = any> {
 
 export interface TransportEncoder {
   encode: (message: TransportMessage) => string | Buffer
-  decode: <T>(data: string) => { busId: string; payload: T }
+  decode: <T>(data: string | Buffer) => { busId: string; payload: T }
 }
 
 export interface RetryQueueOptions {

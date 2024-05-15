@@ -5,8 +5,9 @@
  * @copyright Boring Node
  */
 
+import { Redis } from 'ioredis'
 import { assert } from '@poppinss/utils/assert'
-import { Redis, type RedisOptions } from 'ioredis'
+
 import debug from '../debug.js'
 import { JsonEncoder } from '../encoders/json_encoder.js'
 import type {
@@ -26,18 +27,22 @@ export class RedisTransport implements Transport {
   readonly #publisher: Redis
   readonly #subscriber: Redis
   readonly #encoder: TransportEncoder
+  readonly #useMessageBuffer: boolean = false
 
   #id: string | undefined
 
   constructor(path: string, encoder?: TransportEncoder)
-  constructor(options: RedisOptions, encoder?: TransportEncoder)
-  constructor(options: RedisOptions | string, encoder?: TransportEncoder)
-  constructor(options: RedisOptions | string, encoder?: TransportEncoder) {
+  constructor(options: RedisTransportConfig, encoder?: TransportEncoder)
+  constructor(options: RedisTransportConfig | string, encoder?: TransportEncoder) {
     // @ts-expect-error - merged definitions of overloaded constructor is not public
     this.#publisher = new Redis(options)
     // @ts-expect-error - merged definitions of overloaded constructor is not public
     this.#subscriber = new Redis(options)
     this.#encoder = encoder ?? new JsonEncoder()
+
+    if (typeof options === 'object') {
+      this.#useMessageBuffer = options.useMessageBuffer ?? false
+    }
   }
 
   setId(id: string): Transport {
@@ -69,7 +74,10 @@ export class RedisTransport implements Transport {
       }
     })
 
-    this.#subscriber.on('message', (receivedChannel, message) => {
+    const event = this.#useMessageBuffer ? 'messageBuffer' : 'message'
+    this.#subscriber.on(event, (receivedChannel: Buffer | string, message: Buffer | string) => {
+      receivedChannel = receivedChannel.toString()
+
       if (channel !== receivedChannel) return
 
       debug('received message for channel "%s"', channel)

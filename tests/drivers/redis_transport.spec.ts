@@ -10,6 +10,7 @@ import { test } from '@japa/runner'
 import { RedisContainer, StartedRedisContainer } from '@testcontainers/redis'
 import { RedisTransport } from '../../src/transports/redis.js'
 import { JsonEncoder } from '../../src/encoders/json_encoder.js'
+import { TransportEncoder, TransportMessage } from '../../src/types/main.js'
 
 test.group('Redis Transport', (group) => {
   let container: StartedRedisContainer
@@ -95,4 +96,44 @@ test.group('Redis Transport', (group) => {
 
     await transport.publish('testing-channel', data)
   })
+
+  test('send binary data using useMessageBuffer', async ({ assert, cleanup }, done) => {
+    assert.plan(1)
+
+    class BinaryEncoder implements TransportEncoder {
+      encode(message: TransportMessage<any>) {
+        return Buffer.from(JSON.stringify(message))
+      }
+
+      decode(data: string | Buffer) {
+        const buffer = Buffer.isBuffer(data) ? data : Buffer.from(data, 'binary')
+        return JSON.parse(buffer.toString())
+      }
+    }
+
+    const transport1 = new RedisTransport(
+      { host: container.getHost(), port: container.getMappedPort(6379), useMessageBuffer: true },
+      new BinaryEncoder()
+    ).setId('bus1')
+
+    const transport2 = new RedisTransport(
+      { host: container.getHost(), port: container.getMappedPort(6379), useMessageBuffer: true },
+      new BinaryEncoder()
+    ).setId('bus2')
+
+    cleanup(() => {
+      transport1.disconnect()
+      transport2.disconnect()
+    })
+
+    const data = ['foo', '👍']
+
+    await transport1.subscribe('testing-channel', (payload) => {
+      assert.deepEqual(payload, data)
+      done()
+    })
+
+    await setTimeout(200)
+    await transport2.publish('testing-channel', data)
+  }).waitForDone()
 })
