@@ -12,7 +12,7 @@ export class JsonEncoder implements TransportEncoder {
     return JSON.stringify(message)
   }
 
-  decode(data: string) {
-    return JSON.parse(data)
+  decode(data: string | Buffer) {
+    return JSON.parse(data.toString())
   }
 }
