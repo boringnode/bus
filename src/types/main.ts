@@ -36,6 +36,24 @@ export interface RedisTransportConfig extends RedisOptions {
   useMessageBuffer?: boolean
 }
 
+export enum MqttProtocol {
+  MQTT = 'mqtt',
+  MQTTS = 'mqtts',
+  TCP = 'tcp',
+  TLS = 'tls',
+  WS = 'ws',
+  WSS = 'wss',
+  WXS = 'wxs',
+  ALIS = 'alis',
+}
+
+export interface MqttTransportConfig {
+  host: string
+  port?: number
+  protocol?: MqttProtocol
+  qos?: number
+}
+
 export interface Transport {
   setId: (id: string) => Transport
   onReconnect: (callback: () => void) => void
