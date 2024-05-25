@@ -6,6 +6,7 @@
  */
 
 import type { RedisOptions } from 'ioredis'
+import type { IClientOptions } from 'mqtt'
 export type TransportFactory = () => Transport
 
 /**
@@ -51,7 +52,7 @@ export interface MqttTransportConfig {
   host: string
   port?: number
   protocol?: MqttProtocol
-  qos?: number
+  options?: IClientOptions
 }
 
 export interface Transport {

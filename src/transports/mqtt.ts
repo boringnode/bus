@@ -5,7 +5,7 @@
  * @copyright Boring Node
  */
 
-import Mqtt from 'mqtt'
+import { connect, IClientOptions, MqttClient } from 'mqtt'
 import { assert } from '@poppinss/utils/assert'
 
 import debug from '../debug.js'
@@ -26,15 +26,15 @@ export function mqtt(config: MqttTransportConfig) {
 
 export class MqttTransport implements Transport {
   #id: string | undefined
-  #client: any
+  #client: MqttClient
   #url: string
   readonly #encoder: TransportEncoder
 
-  constructor(options: MqttTransportConfig, encoder?: TransportEncoder) {
+  constructor(config: MqttTransportConfig, encoder?: TransportEncoder) {
     this.#encoder = encoder ?? new JsonEncoder()
-    this.#url = `${options.protocol || MqttProtocol.MQTT}://${options.host}${options.port ? `:${options.port}` : ''}`
+    this.#url = `${config.protocol || MqttProtocol.MQTT}://${config.host}${config.port ? `:${config.port}` : ''}`
 
-    this.#client = Mqtt.connect(this.#url)
+    this.#client = connect(this.#url, config.options ?? {})
   }
 
   setId(id: string): Transport {
