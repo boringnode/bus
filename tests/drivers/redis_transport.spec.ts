@@ -80,22 +80,28 @@ test.group('Redis Transport', (group) => {
   test('message should be encoded and decoded correctly when using JSON encoder', async ({
     assert,
     cleanup,
-  }) => {
-    const transport = new RedisTransport(container.getConnectionUrl(), new JsonEncoder()).setId(
-      'bus'
-    )
-    cleanup(() => transport.disconnect())
+  }, done) => {
+    assert.plan(1)
+
+    const transport1 = new RedisTransport(container.getConnectionUrl()).setId('bus1')
+    const transport2 = new RedisTransport(container.getConnectionUrl()).setId('bus2')
+
+    cleanup(async () => {
+      await transport1.disconnect()
+      await transport2.disconnect()
+    })
 
     const data = { test: 'test' }
 
-    await transport.subscribe('testing-channel', (payload) => {
+    await transport1.subscribe('testing-channel', (payload) => {
       assert.deepEqual(payload, data)
+      done()
     })
 
     await setTimeout(200)
 
-    await transport.publish('testing-channel', data)
-  })
+    await transport2.publish('testing-channel', data)
+  }).waitForDone()
 
   test('send binary data using useMessageBuffer', async ({ assert, cleanup }, done) => {
     assert.plan(1)
