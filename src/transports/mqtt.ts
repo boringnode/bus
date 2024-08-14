@@ -5,7 +5,7 @@
  * @copyright Boring Node
  */
 
-import { connect, IClientOptions, MqttClient } from 'mqtt'
+import { connect, MqttClient } from 'mqtt'
 import { assert } from '@poppinss/utils/assert'
 
 import debug from '../debug.js'
@@ -20,8 +20,8 @@ import {
 } from '../types/main.js'
 import { JsonEncoder } from '../encoders/json_encoder.js'
 
-export function mqtt(config: MqttTransportConfig) {
-  return () => new MqttTransport(config)
+export function mqtt(config: MqttTransportConfig, encoder?: TransportEncoder) {
+  return () => new MqttTransport(config, encoder)
 }
 
 export class MqttTransport implements Transport {
@@ -86,7 +86,7 @@ export class MqttTransport implements Transport {
   }
 
   onReconnect(): void {
-    this.#client.reconnect(this.#url)
+    this.#client.reconnect()
   }
 
   async unsubscribe(channel: string): Promise<void> {

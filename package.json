@@ -47,6 +47,7 @@
     "mqtt": "^5.6.1",
     "prettier": "^3.2.5",
     "release-it": "^17.2.1",
+    "testcontainers": "^10.9.0",
     "ts-node": "^10.9.2",
     "tsup": "^8.0.2",
     "typescript": "^5.4.5"

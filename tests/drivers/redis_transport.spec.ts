@@ -83,8 +83,12 @@ test.group('Redis Transport', (group) => {
   }, done) => {
     assert.plan(1)
 
-    const transport1 = new RedisTransport(container.getConnectionUrl()).setId('bus1')
-    const transport2 = new RedisTransport(container.getConnectionUrl()).setId('bus2')
+    const transport1 = new RedisTransport(container.getConnectionUrl(), new JsonEncoder()).setId(
+      'bus1'
+    )
+    const transport2 = new RedisTransport(container.getConnectionUrl(), new JsonEncoder()).setId(
+      'bus2'
+    )
 
     cleanup(async () => {
       await transport1.disconnect()
