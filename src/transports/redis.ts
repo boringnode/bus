@@ -52,8 +52,7 @@ export class RedisTransport implements Transport {
   }
 
   async disconnect(): Promise<void> {
-    this.#publisher.disconnect()
-    this.#subscriber.disconnect()
+    await Promise.all([this.#publisher.quit(), this.#subscriber.quit()])
   }
 
   async publish(channel: string, message: Serializable): Promise<void> {
