@@ -20,7 +20,7 @@ Currently, it supports the following transports:
 
 <p>
 👉 <strong>Memory:</strong> A simple in-memory transport for testing purposes.<br />
-👉 <strong>Redis:</strong> A Redis transport for production usage.
+👉 <strong>Redis:</strong> A Redis transport for production usage.<br />
 👉 <strong>Mqtt:</strong> A Mqtt transport for production usage.
 </p>
 
