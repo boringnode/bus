@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="[https://github.com/RomainLanz/bus/assets/2793951/fb93dc3d-d05d-40e4-a66b-35bb2a161750](https://github.com/user-attachments/assets/04d2c9b7-9b36-4e17-8bd6-ab8fe85dadbf)" alt="@boringnode/bus">
+  <img src="https://github.com/user-attachments/assets/04d2c9b7-9b36-4e17-8bd6-ab8fe85dadbf" alt="@boringnode/bus">
 </div>
 
 <div align="center">
