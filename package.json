@@ -34,7 +34,7 @@
     "@adonisjs/tsconfig": "^1.4.0",
     "@japa/assert": "^4.0.0",
     "@japa/expect-type": "^2.0.2",
-    "@japa/runner": "^3.1.4",
+    "@japa/runner": "^4.1.0",
     "@swc/core": "^1.10.4",
     "@testcontainers/hivemq": "^10.16.0",
     "@testcontainers/redis": "^10.16.0",
