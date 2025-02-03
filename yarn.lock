@@ -99,12 +99,12 @@ __metadata:
     "@adonisjs/tsconfig": "npm:^1.4.0"
     "@japa/assert": "npm:^4.0.1"
     "@japa/expect-type": "npm:^2.0.3"
-    "@japa/runner": "npm:^4.1.0"
+    "@japa/runner": "npm:^4.2.0"
     "@paralleldrive/cuid2": "npm:^2.2.2"
     "@poppinss/utils": "npm:^6.9.2"
-    "@swc/core": "npm:^1.10.9"
-    "@testcontainers/hivemq": "npm:^10.17.1"
-    "@testcontainers/redis": "npm:^10.17.1"
+    "@swc/core": "npm:^1.10.12"
+    "@testcontainers/hivemq": "npm:^10.17.2"
+    "@testcontainers/redis": "npm:^10.17.2"
     "@types/node": "npm:^20.12.12"
     "@types/object-hash": "npm:^3.0.6"
     c8: "npm:^10.1.3"
@@ -115,7 +115,7 @@ __metadata:
     object-hash: "npm:^3.0.0"
     prettier: "npm:^3.4.2"
     release-it: "npm:^18.1.2"
-    testcontainers: "npm:^10.17.1"
+    testcontainers: "npm:^10.17.2"
     ts-node-maintained: "npm:^10.9.5"
     tsup: "npm:^8.3.6"
     typescript: "npm:^5.7.3"
@@ -728,15 +728,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@japa/errors-printer@npm:^4.1.0":
-  version: 4.1.0
-  resolution: "@japa/errors-printer@npm:4.1.0"
+"@japa/errors-printer@npm:^4.1.2":
+  version: 4.1.2
+  resolution: "@japa/errors-printer@npm:4.1.2"
   dependencies:
     "@poppinss/colors": "npm:^4.1.4"
     jest-diff: "npm:^29.7.0"
     supports-color: "npm:^10.0.0"
-    youch: "npm:^4.1.0-beta.4"
-  checksum: 10c0/c33a9cbea7425b7f3eb111338930b09f1fd88dd2d1db2edb1e4b283fc39226db09b323e8c2e3175141fe78f24307eeaeed2fe24b693b41b5a0a29256b4072d13
+    youch: "npm:^4.1.0-beta.5"
+  checksum: 10c0/9758e98b892a7bd27c0ecf483a77b38b5cdcfc756c1462dab55e8723155edb016e82385ab39356a5523778493bb12fba8a50e42d7e93fc0a76231c4ea5fbc7f7
   languageName: node
   linkType: hard
 
@@ -751,12 +751,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@japa/runner@npm:^4.1.0":
-  version: 4.1.0
-  resolution: "@japa/runner@npm:4.1.0"
+"@japa/runner@npm:^4.2.0":
+  version: 4.2.0
+  resolution: "@japa/runner@npm:4.2.0"
   dependencies:
     "@japa/core": "npm:^10.3.0"
-    "@japa/errors-printer": "npm:^4.1.0"
+    "@japa/errors-printer": "npm:^4.1.2"
     "@poppinss/colors": "npm:^4.1.4"
     "@poppinss/hooks": "npm:^7.2.5"
     fast-glob: "npm:^3.3.3"
@@ -766,7 +766,7 @@ __metadata:
     serialize-error: "npm:^12.0.0"
     slash: "npm:^5.1.0"
     supports-color: "npm:^10.0.0"
-  checksum: 10c0/e608c54d4baba4aaeebe89213dca2f8ddbf525da2f435f041a378f9f8db69b197b907c3026c7840360a6e1db3de849b94d3bf0400671cf03c9e444cabc7773b5
+  checksum: 10c0/9dc7ea7c84bed9f26c883398bb1f155d4477e755adfce100ae07d88037ac048f56d5bf48dc87664683a0b54b702790b1136563a36d4518cee2c88f4481ecfa95
   languageName: node
   linkType: hard
 
@@ -1077,7 +1077,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@poppinss/dumper@npm:^0.6.1":
+"@poppinss/dumper@npm:^0.6.2":
   version: 0.6.2
   resolution: "@poppinss/dumper@npm:0.6.2"
   dependencies:
@@ -1350,90 +1350,90 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@swc/core-darwin-arm64@npm:1.10.9":
-  version: 1.10.9
-  resolution: "@swc/core-darwin-arm64@npm:1.10.9"
+"@swc/core-darwin-arm64@npm:1.10.12":
+  version: 1.10.12
+  resolution: "@swc/core-darwin-arm64@npm:1.10.12"
   conditions: os=darwin & cpu=arm64
   languageName: node
   linkType: hard
 
-"@swc/core-darwin-x64@npm:1.10.9":
-  version: 1.10.9
-  resolution: "@swc/core-darwin-x64@npm:1.10.9"
+"@swc/core-darwin-x64@npm:1.10.12":
+  version: 1.10.12
+  resolution: "@swc/core-darwin-x64@npm:1.10.12"
   conditions: os=darwin & cpu=x64
   languageName: node
   linkType: hard
 
-"@swc/core-linux-arm-gnueabihf@npm:1.10.9":
-  version: 1.10.9
-  resolution: "@swc/core-linux-arm-gnueabihf@npm:1.10.9"
+"@swc/core-linux-arm-gnueabihf@npm:1.10.12":
+  version: 1.10.12
+  resolution: "@swc/core-linux-arm-gnueabihf@npm:1.10.12"
   conditions: os=linux & cpu=arm
   languageName: node
   linkType: hard
 
-"@swc/core-linux-arm64-gnu@npm:1.10.9":
-  version: 1.10.9
-  resolution: "@swc/core-linux-arm64-gnu@npm:1.10.9"
+"@swc/core-linux-arm64-gnu@npm:1.10.12":
+  version: 1.10.12
+  resolution: "@swc/core-linux-arm64-gnu@npm:1.10.12"
   conditions: os=linux & cpu=arm64 & libc=glibc
   languageName: node
   linkType: hard
 
-"@swc/core-linux-arm64-musl@npm:1.10.9":
-  version: 1.10.9
-  resolution: "@swc/core-linux-arm64-musl@npm:1.10.9"
+"@swc/core-linux-arm64-musl@npm:1.10.12":
+  version: 1.10.12
+  resolution: "@swc/core-linux-arm64-musl@npm:1.10.12"
   conditions: os=linux & cpu=arm64 & libc=musl
   languageName: node
   linkType: hard
 
-"@swc/core-linux-x64-gnu@npm:1.10.9":
-  version: 1.10.9
-  resolution: "@swc/core-linux-x64-gnu@npm:1.10.9"
+"@swc/core-linux-x64-gnu@npm:1.10.12":
+  version: 1.10.12
+  resolution: "@swc/core-linux-x64-gnu@npm:1.10.12"
   conditions: os=linux & cpu=x64 & libc=glibc
   languageName: node
   linkType: hard
 
-"@swc/core-linux-x64-musl@npm:1.10.9":
-  version: 1.10.9
-  resolution: "@swc/core-linux-x64-musl@npm:1.10.9"
+"@swc/core-linux-x64-musl@npm:1.10.12":
+  version: 1.10.12
+  resolution: "@swc/core-linux-x64-musl@npm:1.10.12"
   conditions: os=linux & cpu=x64 & libc=musl
   languageName: node
   linkType: hard
 
-"@swc/core-win32-arm64-msvc@npm:1.10.9":
-  version: 1.10.9
-  resolution: "@swc/core-win32-arm64-msvc@npm:1.10.9"
+"@swc/core-win32-arm64-msvc@npm:1.10.12":
+  version: 1.10.12
+  resolution: "@swc/core-win32-arm64-msvc@npm:1.10.12"
   conditions: os=win32 & cpu=arm64
   languageName: node
   linkType: hard
 
-"@swc/core-win32-ia32-msvc@npm:1.10.9":
-  version: 1.10.9
-  resolution: "@swc/core-win32-ia32-msvc@npm:1.10.9"
+"@swc/core-win32-ia32-msvc@npm:1.10.12":
+  version: 1.10.12
+  resolution: "@swc/core-win32-ia32-msvc@npm:1.10.12"
   conditions: os=win32 & cpu=ia32
   languageName: node
   linkType: hard
 
-"@swc/core-win32-x64-msvc@npm:1.10.9":
-  version: 1.10.9
-  resolution: "@swc/core-win32-x64-msvc@npm:1.10.9"
+"@swc/core-win32-x64-msvc@npm:1.10.12":
+  version: 1.10.12
+  resolution: "@swc/core-win32-x64-msvc@npm:1.10.12"
   conditions: os=win32 & cpu=x64
   languageName: node
   linkType: hard
 
-"@swc/core@npm:^1.10.9":
-  version: 1.10.9
-  resolution: "@swc/core@npm:1.10.9"
+"@swc/core@npm:^1.10.12":
+  version: 1.10.12
+  resolution: "@swc/core@npm:1.10.12"
   dependencies:
-    "@swc/core-darwin-arm64": "npm:1.10.9"
-    "@swc/core-darwin-x64": "npm:1.10.9"
-    "@swc/core-linux-arm-gnueabihf": "npm:1.10.9"
-    "@swc/core-linux-arm64-gnu": "npm:1.10.9"
-    "@swc/core-linux-arm64-musl": "npm:1.10.9"
-    "@swc/core-linux-x64-gnu": "npm:1.10.9"
-    "@swc/core-linux-x64-musl": "npm:1.10.9"
-    "@swc/core-win32-arm64-msvc": "npm:1.10.9"
-    "@swc/core-win32-ia32-msvc": "npm:1.10.9"
-    "@swc/core-win32-x64-msvc": "npm:1.10.9"
+    "@swc/core-darwin-arm64": "npm:1.10.12"
+    "@swc/core-darwin-x64": "npm:1.10.12"
+    "@swc/core-linux-arm-gnueabihf": "npm:1.10.12"
+    "@swc/core-linux-arm64-gnu": "npm:1.10.12"
+    "@swc/core-linux-arm64-musl": "npm:1.10.12"
+    "@swc/core-linux-x64-gnu": "npm:1.10.12"
+    "@swc/core-linux-x64-musl": "npm:1.10.12"
+    "@swc/core-win32-arm64-msvc": "npm:1.10.12"
+    "@swc/core-win32-ia32-msvc": "npm:1.10.12"
+    "@swc/core-win32-x64-msvc": "npm:1.10.12"
     "@swc/counter": "npm:^0.1.3"
     "@swc/types": "npm:^0.1.17"
   peerDependencies:
@@ -1462,7 +1462,7 @@ __metadata:
   peerDependenciesMeta:
     "@swc/helpers":
       optional: true
-  checksum: 10c0/ddc94b04a63093113cacd48f554db4b68c7b7c08ebcf3eb64eca996393690ff1d69b5741d79882500502febcf4adb8556c8858e61c03a738c0d1b8c0c5b6fe2c
+  checksum: 10c0/ce46f64bd66d21dd1fea3afa7f82dcc28520ccac13f2b6c580d37b58b97a3b97281300bed24a20294d3dd4eeb2e50fb5a3e5d15a278aa80a9474e362c83fa5ff
   languageName: node
   linkType: hard
 
@@ -1482,21 +1482,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@testcontainers/hivemq@npm:^10.17.1":
-  version: 10.17.1
-  resolution: "@testcontainers/hivemq@npm:10.17.1"
+"@testcontainers/hivemq@npm:^10.17.2":
+  version: 10.17.2
+  resolution: "@testcontainers/hivemq@npm:10.17.2"
   dependencies:
-    testcontainers: "npm:^10.17.1"
-  checksum: 10c0/0a438c59f57bcf0573d88c0cb75c0310075bfa321a3dd1ce27269c331769f660abc694fb5f4381d8d222cfe50902d6c3a1551bb4a569e3ad25ec67a50a4b1a23
+    testcontainers: "npm:^10.17.2"
+  checksum: 10c0/555dd79c3cbe0b23135f31062b0cdbbb90360701791bc8a61c048167cde1a6849bc51a9e227b4c81d07feede840f8ef4481e68b17f62982d0dad6a2528cef92f
   languageName: node
   linkType: hard
 
-"@testcontainers/redis@npm:^10.17.1":
-  version: 10.17.1
-  resolution: "@testcontainers/redis@npm:10.17.1"
+"@testcontainers/redis@npm:^10.17.2":
+  version: 10.17.2
+  resolution: "@testcontainers/redis@npm:10.17.2"
   dependencies:
-    testcontainers: "npm:^10.17.1"
-  checksum: 10c0/b0b1a6ea562280e25347a578897c5e1c3cab431fd365db5a02cd5f9c4cc1e299fc65fa2b9b8e4079fba95c0be873144f28d57a5b56bf2db9a2af766be3db2d2a
+    testcontainers: "npm:^10.17.2"
+  checksum: 10c0/d10d96e42d196d219c2216aae83d5bdb4c5620a38b6cbf2ef09bad7bb5956e8bee51434b1a501ba2574a16fbe6480435a7304e2117f545a69951f2f38df13910
   languageName: node
   linkType: hard
 
@@ -6575,9 +6575,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"testcontainers@npm:^10.17.1":
-  version: 10.17.1
-  resolution: "testcontainers@npm:10.17.1"
+"testcontainers@npm:^10.17.2":
+  version: 10.17.2
+  resolution: "testcontainers@npm:10.17.2"
   dependencies:
     "@balena/dockerignore": "npm:^1.0.2"
     "@types/dockerode": "npm:^3.3.29"
@@ -6593,8 +6593,8 @@ __metadata:
     ssh-remote-port-forward: "npm:^1.0.4"
     tar-fs: "npm:^3.0.6"
     tmp: "npm:^0.2.3"
-    undici: "npm:^5.28.4"
-  checksum: 10c0/7707790330385db82ef8f9abee052b7830c7cfce1166db4154626d09611698958568650db189eadd5e8c58e264bce36c71ce46002e04eb7ecd3dab48c70b436a
+    undici: "npm:^5.28.5"
+  checksum: 10c0/9d2397f6972b44aa1b4278ab3481a3a925d79d1141e88cddeb9798d569ece4cde510436e1c75cbfd7970153100cf04dd52bd5ef970b32eef644818bb5cbf1f4e
   languageName: node
   linkType: hard
 
@@ -6939,12 +6939,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"undici@npm:^5.28.4":
-  version: 5.28.4
-  resolution: "undici@npm:5.28.4"
+"undici@npm:^5.28.5":
+  version: 5.28.5
+  resolution: "undici@npm:5.28.5"
   dependencies:
     "@fastify/busboy": "npm:^2.0.0"
-  checksum: 10c0/08d0f2596553aa0a54ca6e8e9c7f45aef7d042c60918564e3a142d449eda165a80196f6ef19ea2ef2e6446959e293095d8e40af1236f0d67223b06afac5ecad7
+  checksum: 10c0/4dfaa13089fe4c0758f84ec0d34b257e58608e6be3aa540f493b9864b39e3fdcd0a1ace38e434fe79db55f833aa30bcfddd8d6cbe3e0982b0dcae8ec17b65e08
   languageName: node
   linkType: hard
 
@@ -7343,7 +7343,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"youch-core@npm:^0.3.0":
+"youch-core@npm:^0.3.1":
   version: 0.3.1
   resolution: "youch-core@npm:0.3.1"
   dependencies:
@@ -7353,15 +7353,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"youch@npm:^4.1.0-beta.4":
-  version: 4.1.0-beta.4
-  resolution: "youch@npm:4.1.0-beta.4"
+"youch@npm:^4.1.0-beta.5":
+  version: 4.1.0-beta.5
+  resolution: "youch@npm:4.1.0-beta.5"
   dependencies:
-    "@poppinss/dumper": "npm:^0.6.1"
+    "@poppinss/dumper": "npm:^0.6.2"
     "@speed-highlight/core": "npm:^1.2.7"
     cookie: "npm:^1.0.2"
-    youch-core: "npm:^0.3.0"
-  checksum: 10c0/6d2ad88b1d76ba3cb4698afe118aba4593374238bc91f59cddeca0bb6e67c3911235b8bbfec1d70eea361df37d070a820bfcbdca4992e79a07d5efe8bd902765
+    youch-core: "npm:^0.3.1"
+  checksum: 10c0/c2f9b4020779edd238e796b0c81e49fca2f9f751f558e461a674ea45ce96d059b09824836f3d02a998879b5725c374f1f2cd91a0d1732bdc4850b479b45f4ad1
   languageName: node
   linkType: hard
 
