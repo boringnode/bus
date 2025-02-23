@@ -17,7 +17,7 @@
     "./types/*": "./build/src/types/*.js"
   },
   "scripts": {
-    "build": "yarn clean && tsc",
+    "build": "yarn clean && tsup-node",
     "clean": "del-cli build",
     "format": "prettier --write .",
     "lint": "eslint .",
