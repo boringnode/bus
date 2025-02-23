@@ -5,7 +5,7 @@
  * @copyright BoringNode
  */
 
-import { RuntimeException } from '@poppinss/utils'
+import { RuntimeException } from '@poppinss/utils/exceptions'
 import { Bus } from './bus.js'
 import debug from './debug.js'
 import type {
