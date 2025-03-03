@@ -35,7 +35,7 @@
     "@japa/assert": "^4.0.1",
     "@japa/expect-type": "^2.0.3",
     "@japa/runner": "^4.2.0",
-    "@swc/core": "^1.10.18",
+    "@swc/core": "^1.11.5",
     "@testcontainers/hivemq": "^10.18.0",
     "@testcontainers/redis": "^10.18.0",
     "@types/node": "^20.17.19",
@@ -44,13 +44,13 @@
     "del-cli": "^6.0.0",
     "eslint": "^9.21.0",
     "ioredis": "^5.5.0",
-    "mqtt": "^5.10.3",
-    "prettier": "^3.5.2",
+    "mqtt": "^5.10.4",
+    "prettier": "^3.5.3",
     "release-it": "^18.1.2",
     "testcontainers": "^10.18.0",
     "ts-node-maintained": "^10.9.5",
-    "tsup": "^8.3.6",
-    "typescript": "^5.7.3"
+    "tsup": "^8.4.0",
+    "typescript": "^5.8.2"
   },
   "dependencies": {
     "@paralleldrive/cuid2": "^2.2.2",
@@ -92,5 +92,5 @@
       "web": true
     }
   },
-  "packageManager": "yarn@4.6.0"
+  "packageManager": "yarn@4.7.0"
 }
