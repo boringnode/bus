@@ -98,16 +98,16 @@ __metadata:
     "@japa/runner": "npm:^4.2.0"
     "@paralleldrive/cuid2": "npm:^2.2.2"
     "@poppinss/utils": "npm:^6.10.0"
-    "@swc/core": "npm:^1.12.7"
+    "@swc/core": "npm:^1.12.11"
     "@testcontainers/hivemq": "npm:^10.28.0"
     "@testcontainers/redis": "npm:^10.28.0"
     "@types/node": "npm:^20.17.19"
     "@types/object-hash": "npm:^3.0.6"
     c8: "npm:^10.1.3"
     del-cli: "npm:^6.0.0"
-    eslint: "npm:^9.30.0"
+    eslint: "npm:^9.30.1"
     ioredis: "npm:^5.6.1"
-    mqtt: "npm:^5.13.1"
+    mqtt: "npm:^5.13.2"
     object-hash: "npm:^3.0.0"
     prettier: "npm:^3.6.2"
     release-it: "npm:^19.0.3"
@@ -431,10 +431,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@eslint/js@npm:9.30.0":
-  version: 9.30.0
-  resolution: "@eslint/js@npm:9.30.0"
-  checksum: 10c0/aec2df7f4e4e884d693dc27dbf4713c1a48afa327bfadac25ebd0e61a2797ce906f2f2a9be0d7d922acb68ccd68cc88779737811f9769eb4933d1f5e574c469e
+"@eslint/js@npm:9.30.1":
+  version: 9.30.1
+  resolution: "@eslint/js@npm:9.30.1"
+  checksum: 10c0/17fc382a0deafdb1cadac1269d9c2f2464f025bde6e4d12fc4f4775eb9886b41340d4650b72e85a53423644fdc89bf59c987a852f27379ad25feecf2c5bbc1c9
   languageName: node
   linkType: hard
 
@@ -1525,90 +1525,90 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@swc/core-darwin-arm64@npm:1.12.7":
-  version: 1.12.7
-  resolution: "@swc/core-darwin-arm64@npm:1.12.7"
+"@swc/core-darwin-arm64@npm:1.12.11":
+  version: 1.12.11
+  resolution: "@swc/core-darwin-arm64@npm:1.12.11"
   conditions: os=darwin & cpu=arm64
   languageName: node
   linkType: hard
 
-"@swc/core-darwin-x64@npm:1.12.7":
-  version: 1.12.7
-  resolution: "@swc/core-darwin-x64@npm:1.12.7"
+"@swc/core-darwin-x64@npm:1.12.11":
+  version: 1.12.11
+  resolution: "@swc/core-darwin-x64@npm:1.12.11"
   conditions: os=darwin & cpu=x64
   languageName: node
   linkType: hard
 
-"@swc/core-linux-arm-gnueabihf@npm:1.12.7":
-  version: 1.12.7
-  resolution: "@swc/core-linux-arm-gnueabihf@npm:1.12.7"
+"@swc/core-linux-arm-gnueabihf@npm:1.12.11":
+  version: 1.12.11
+  resolution: "@swc/core-linux-arm-gnueabihf@npm:1.12.11"
   conditions: os=linux & cpu=arm
   languageName: node
   linkType: hard
 
-"@swc/core-linux-arm64-gnu@npm:1.12.7":
-  version: 1.12.7
-  resolution: "@swc/core-linux-arm64-gnu@npm:1.12.7"
+"@swc/core-linux-arm64-gnu@npm:1.12.11":
+  version: 1.12.11
+  resolution: "@swc/core-linux-arm64-gnu@npm:1.12.11"
   conditions: os=linux & cpu=arm64 & libc=glibc
   languageName: node
   linkType: hard
 
-"@swc/core-linux-arm64-musl@npm:1.12.7":
-  version: 1.12.7
-  resolution: "@swc/core-linux-arm64-musl@npm:1.12.7"
+"@swc/core-linux-arm64-musl@npm:1.12.11":
+  version: 1.12.11
+  resolution: "@swc/core-linux-arm64-musl@npm:1.12.11"
   conditions: os=linux & cpu=arm64 & libc=musl
   languageName: node
   linkType: hard
 
-"@swc/core-linux-x64-gnu@npm:1.12.7":
-  version: 1.12.7
-  resolution: "@swc/core-linux-x64-gnu@npm:1.12.7"
+"@swc/core-linux-x64-gnu@npm:1.12.11":
+  version: 1.12.11
+  resolution: "@swc/core-linux-x64-gnu@npm:1.12.11"
   conditions: os=linux & cpu=x64 & libc=glibc
   languageName: node
   linkType: hard
 
-"@swc/core-linux-x64-musl@npm:1.12.7":
-  version: 1.12.7
-  resolution: "@swc/core-linux-x64-musl@npm:1.12.7"
+"@swc/core-linux-x64-musl@npm:1.12.11":
+  version: 1.12.11
+  resolution: "@swc/core-linux-x64-musl@npm:1.12.11"
   conditions: os=linux & cpu=x64 & libc=musl
   languageName: node
   linkType: hard
 
-"@swc/core-win32-arm64-msvc@npm:1.12.7":
-  version: 1.12.7
-  resolution: "@swc/core-win32-arm64-msvc@npm:1.12.7"
+"@swc/core-win32-arm64-msvc@npm:1.12.11":
+  version: 1.12.11
+  resolution: "@swc/core-win32-arm64-msvc@npm:1.12.11"
   conditions: os=win32 & cpu=arm64
   languageName: node
   linkType: hard
 
-"@swc/core-win32-ia32-msvc@npm:1.12.7":
-  version: 1.12.7
-  resolution: "@swc/core-win32-ia32-msvc@npm:1.12.7"
+"@swc/core-win32-ia32-msvc@npm:1.12.11":
+  version: 1.12.11
+  resolution: "@swc/core-win32-ia32-msvc@npm:1.12.11"
   conditions: os=win32 & cpu=ia32
   languageName: node
   linkType: hard
 
-"@swc/core-win32-x64-msvc@npm:1.12.7":
-  version: 1.12.7
-  resolution: "@swc/core-win32-x64-msvc@npm:1.12.7"
+"@swc/core-win32-x64-msvc@npm:1.12.11":
+  version: 1.12.11
+  resolution: "@swc/core-win32-x64-msvc@npm:1.12.11"
   conditions: os=win32 & cpu=x64
   languageName: node
   linkType: hard
 
-"@swc/core@npm:^1.12.7":
-  version: 1.12.7
-  resolution: "@swc/core@npm:1.12.7"
+"@swc/core@npm:^1.12.11":
+  version: 1.12.11
+  resolution: "@swc/core@npm:1.12.11"
   dependencies:
-    "@swc/core-darwin-arm64": "npm:1.12.7"
-    "@swc/core-darwin-x64": "npm:1.12.7"
-    "@swc/core-linux-arm-gnueabihf": "npm:1.12.7"
-    "@swc/core-linux-arm64-gnu": "npm:1.12.7"
-    "@swc/core-linux-arm64-musl": "npm:1.12.7"
-    "@swc/core-linux-x64-gnu": "npm:1.12.7"
-    "@swc/core-linux-x64-musl": "npm:1.12.7"
-    "@swc/core-win32-arm64-msvc": "npm:1.12.7"
-    "@swc/core-win32-ia32-msvc": "npm:1.12.7"
-    "@swc/core-win32-x64-msvc": "npm:1.12.7"
+    "@swc/core-darwin-arm64": "npm:1.12.11"
+    "@swc/core-darwin-x64": "npm:1.12.11"
+    "@swc/core-linux-arm-gnueabihf": "npm:1.12.11"
+    "@swc/core-linux-arm64-gnu": "npm:1.12.11"
+    "@swc/core-linux-arm64-musl": "npm:1.12.11"
+    "@swc/core-linux-x64-gnu": "npm:1.12.11"
+    "@swc/core-linux-x64-musl": "npm:1.12.11"
+    "@swc/core-win32-arm64-msvc": "npm:1.12.11"
+    "@swc/core-win32-ia32-msvc": "npm:1.12.11"
+    "@swc/core-win32-x64-msvc": "npm:1.12.11"
     "@swc/counter": "npm:^0.1.3"
     "@swc/types": "npm:^0.1.23"
   peerDependencies:
@@ -1637,7 +1637,7 @@ __metadata:
   peerDependenciesMeta:
     "@swc/helpers":
       optional: true
-  checksum: 10c0/c44aa91c433937b512ed902ee1ad9d8fc79e9f914b6291685e912e963002dbb0b86374f22be1435fd44515d03232212b0125acb2c12cf84f01fea3d2eb008656
+  checksum: 10c0/249ec436285ecdd10d9182c2e1d76b18625aa48f9b3e3975e6b76ce3c05a8a99278cba3abf6d09377c9d5b4b8f49eeca2e997c24c00560ed8dfce61420b98867
   languageName: node
   linkType: hard
 
@@ -1842,6 +1842,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/readable-stream@npm:^4.0.18":
+  version: 4.0.21
+  resolution: "@types/readable-stream@npm:4.0.21"
+  dependencies:
+    "@types/node": "npm:*"
+  checksum: 10c0/5c0a69a994d7efb8de6c27a626a5353b0d5d510979dd6bddc344d3fe54630ad175bf5fafe48eeaa9f423cf22d60247d0b20264aad68ced2eb49318b071168fed
+  languageName: node
+  linkType: hard
+
 "@types/ssh2-streams@npm:*":
   version: 0.1.12
   resolution: "@types/ssh2-streams@npm:0.1.12"
@@ -1867,6 +1876,15 @@ __metadata:
     "@types/node": "npm:*"
     "@types/ssh2-streams": "npm:*"
   checksum: 10c0/95c52fd3438dedae6a59ca87b6558cb36568db6b9144c6c8a28c168739e04c51e27c02908aae14950b7b5020e1c40fea039b1203ae2734c356a40a050fd51c84
+  languageName: node
+  linkType: hard
+
+"@types/ws@npm:^8.18.1":
+  version: 8.18.1
+  resolution: "@types/ws@npm:8.18.1"
+  dependencies:
+    "@types/node": "npm:*"
+  checksum: 10c0/61aff1129143fcc4312f083bc9e9e168aa3026b7dd6e70796276dcfb2c8211c4292603f9c4864fae702f2ed86e4abd4d38aa421831c2fd7f856c931a481afbab
   languageName: node
   linkType: hard
 
@@ -3448,9 +3466,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint@npm:^9.30.0":
-  version: 9.30.0
-  resolution: "eslint@npm:9.30.0"
+"eslint@npm:^9.30.1":
+  version: 9.30.1
+  resolution: "eslint@npm:9.30.1"
   dependencies:
     "@eslint-community/eslint-utils": "npm:^4.2.0"
     "@eslint-community/regexpp": "npm:^4.12.1"
@@ -3458,7 +3476,7 @@ __metadata:
     "@eslint/config-helpers": "npm:^0.3.0"
     "@eslint/core": "npm:^0.14.0"
     "@eslint/eslintrc": "npm:^3.3.1"
-    "@eslint/js": "npm:9.30.0"
+    "@eslint/js": "npm:9.30.1"
     "@eslint/plugin-kit": "npm:^0.3.1"
     "@humanfs/node": "npm:^0.16.6"
     "@humanwhocodes/module-importer": "npm:^1.0.1"
@@ -3494,7 +3512,7 @@ __metadata:
       optional: true
   bin:
     eslint: bin/eslint.js
-  checksum: 10c0/ebc4b17cfd96f308ebaeb12dfab133a551eb03200c80109ecf663fbeb9af83c4eb3c143407c1b04522d23b5f5844fe9a629b00d409adfc460c1aadf5108da86a
+  checksum: 10c0/5a5867078e03ea56a1b6d1ee1548659abc38a6d5136c7ef94e21c5dbeb28e3ed50b15d2e0da25fce85600f6cf7ea7715eae650c41e8ae826c34490e9ec73d5d6
   languageName: node
   linkType: hard
 
@@ -4988,10 +5006,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mqtt@npm:^5.13.1":
-  version: 5.13.1
-  resolution: "mqtt@npm:5.13.1"
+"mqtt@npm:^5.13.2":
+  version: 5.13.2
+  resolution: "mqtt@npm:5.13.2"
   dependencies:
+    "@types/readable-stream": "npm:^4.0.18"
+    "@types/ws": "npm:^8.18.1"
     commist: "npm:^3.2.0"
     concat-stream: "npm:^2.0.0"
     debug: "npm:^4.4.0"
@@ -5010,7 +5030,7 @@ __metadata:
     mqtt: build/bin/mqtt.js
     mqtt_pub: build/bin/pub.js
     mqtt_sub: build/bin/sub.js
-  checksum: 10c0/2ffe285393aecc46f496ddb27e2a3e28676ce2bcdc49335f925600285adc454987306b4dd76c119bb3a79eebfe21241efa56c93bf64b704925d70b777bafe3cb
+  checksum: 10c0/aceddd7ae0773b5b5e27b970de5db470d272f0771e7112869f11ab1d175770a24dbeab3e1078f292e39b98f9aa495d32faccc270e0a5e8aba1f81cd56a6c6d9b
   languageName: node
   linkType: hard
 
