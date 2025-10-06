@@ -16,7 +16,7 @@ test.group('Redis Transport', (group) => {
   let container: StartedRedisContainer
 
   group.setup(async () => {
-    container = await new RedisContainer().start()
+    container = await new RedisContainer('redis:7.2').start()
 
     return async () => {
       await container.stop()
