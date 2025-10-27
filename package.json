@@ -53,7 +53,7 @@
     "typescript": "^5.9.3"
   },
   "dependencies": {
-    "@paralleldrive/cuid2": "^2.3.1",
+    "@paralleldrive/cuid2": "^3.0.4",
     "@poppinss/utils": "^6.10.1",
     "object-hash": "^3.0.0"
   },
