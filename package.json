@@ -35,7 +35,7 @@
     "@japa/assert": "^4.1.1",
     "@japa/expect-type": "^2.0.3",
     "@japa/runner": "^4.4.0",
-    "@swc/core": "^1.15.2",
+    "@swc/core": "^1.15.3",
     "@testcontainers/hivemq": "^11.8.1",
     "@testcontainers/redis": "^11.8.1",
     "@types/node": "^20.17.19",
@@ -92,5 +92,5 @@
       "web": true
     }
   },
-  "packageManager": "yarn@4.11.0"
+  "packageManager": "yarn@4.12.0"
 }
