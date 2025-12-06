@@ -5,7 +5,7 @@
  * @copyright BoringNode
  */
 
-import { Redis } from 'ioredis'
+import { Redis, Cluster } from 'ioredis'
 import { assert } from '@poppinss/utils/assert'
 
 import debug from '../debug.js'
@@ -24,8 +24,8 @@ export function redis(config: RedisTransportConfig, encoder?: TransportEncoder) 
 }
 
 export class RedisTransport implements Transport {
-  readonly #publisher: Redis
-  readonly #subscriber: Redis
+  readonly #publisher: Redis | Cluster
+  readonly #subscriber: Redis | Cluster
   readonly #encoder: TransportEncoder
   readonly #useMessageBuffer: boolean = false
 
@@ -33,12 +33,27 @@ export class RedisTransport implements Transport {
 
   constructor(path: string, encoder?: TransportEncoder)
   constructor(options: RedisTransportConfig, encoder?: TransportEncoder)
-  constructor(options: RedisTransportConfig | string, encoder?: TransportEncoder) {
+  constructor(connection: Redis | Cluster, encoder?: TransportEncoder)
+  constructor(
+    options: RedisTransportConfig | string | Redis | Cluster,
+    encoder?: TransportEncoder
+  ) {
+    this.#encoder = encoder ?? new JsonEncoder()
+
+    /**
+     * If an existing Redis or Cluster instance is passed, we duplicate it
+     * to have separate connections for publisher and subscriber
+     */
+    if (options instanceof Redis || options instanceof Cluster) {
+      this.#publisher = options.duplicate()
+      this.#subscriber = options.duplicate()
+      return
+    }
+
     // @ts-expect-error - merged definitions of overloaded constructor is not public
     this.#publisher = new Redis(options)
     // @ts-expect-error - merged definitions of overloaded constructor is not public
     this.#subscriber = new Redis(options)
-    this.#encoder = encoder ?? new JsonEncoder()
 
     if (typeof options === 'object') {
       this.#useMessageBuffer = options.useMessageBuffer ?? false

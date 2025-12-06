@@ -7,6 +7,8 @@
 
 import type { RedisOptions } from 'ioredis'
 import type { IClientOptions } from 'mqtt'
+
+export type { Redis, Cluster } from 'ioredis'
 export type TransportFactory = () => Transport
 
 /**

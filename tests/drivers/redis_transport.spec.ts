@@ -7,6 +7,7 @@
 
 import { setTimeout } from 'node:timers/promises'
 import { test } from '@japa/runner'
+import { Redis, Cluster } from 'ioredis'
 import { RedisContainer, StartedRedisContainer } from '@testcontainers/redis'
 import { RedisTransport } from '../../src/transports/redis.js'
 import { JsonEncoder } from '../../src/encoders/json_encoder.js'
@@ -146,4 +147,63 @@ test.group('Redis Transport', (group) => {
     await setTimeout(200)
     await transport2.publish('testing-channel', data)
   }).waitForDone()
+
+  test('should work with an existing redis instance', async ({ assert, cleanup }, done) => {
+    assert.plan(1)
+
+    const redisInstance = new Redis({
+      host: container.getHost(),
+      port: container.getMappedPort(6379),
+    })
+
+    cleanup(async () => {
+      await redisInstance.quit()
+    })
+
+    const transport1 = new RedisTransport(redisInstance).setId('bus1')
+    const transport2 = new RedisTransport(redisInstance).setId('bus2')
+
+    cleanup(async () => {
+      await transport1.disconnect()
+      await transport2.disconnect()
+    })
+
+    await transport1.subscribe('testing-channel', (payload) => {
+      assert.equal(payload, 'test')
+      done()
+    })
+
+    await setTimeout(200)
+
+    await transport2.publish('testing-channel', 'test')
+  }).waitForDone()
+
+  test('should work with an existing cluster instance', async ({ assert, cleanup }, done) => {
+    assert.plan(1)
+
+    const cluster = new Cluster([{ host: '127.0.0.1', port: 7000 }])
+
+    cleanup(async () => {
+      await cluster.quit()
+    })
+
+    const transport1 = new RedisTransport(cluster).setId('bus1')
+    const transport2 = new RedisTransport(cluster).setId('bus2')
+
+    cleanup(async () => {
+      await transport1.disconnect()
+      await transport2.disconnect()
+    })
+
+    await transport1.subscribe('testing-channel', (payload) => {
+      assert.equal(payload, 'test')
+      done()
+    })
+
+    await setTimeout(200)
+
+    await transport2.publish('testing-channel', 'test')
+  })
+    .waitForDone()
+    .skip(!!process.env.CI, 'Skipping cluster test on CI')
 })
