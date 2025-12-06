@@ -17,6 +17,7 @@ import type {
   Serializable,
   SubscribeHandler,
   RedisTransportConfig,
+  RedisTransportOptions,
 } from '../types/main.js'
 
 export function redis(config: RedisTransportConfig, encoder?: TransportEncoder) {
@@ -33,10 +34,15 @@ export class RedisTransport implements Transport {
 
   constructor(path: string, encoder?: TransportEncoder)
   constructor(options: RedisTransportConfig, encoder?: TransportEncoder)
-  constructor(connection: Redis | Cluster, encoder?: TransportEncoder)
+  constructor(
+    connection: Redis | Cluster,
+    encoder?: TransportEncoder,
+    options?: RedisTransportOptions
+  )
   constructor(
     options: RedisTransportConfig | string | Redis | Cluster,
-    encoder?: TransportEncoder
+    encoder?: TransportEncoder,
+    transportOptions?: RedisTransportOptions
   ) {
     this.#encoder = encoder ?? new JsonEncoder()
 
@@ -47,6 +53,7 @@ export class RedisTransport implements Transport {
     if (options instanceof Redis || options instanceof Cluster) {
       this.#publisher = options.duplicate()
       this.#subscriber = options.duplicate()
+      this.#useMessageBuffer = transportOptions?.useMessageBuffer ?? false
       return
     }
 
