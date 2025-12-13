@@ -1,13 +1,13 @@
 services:
   redis:
-    image: redis:7.2-alpine
+    image: redis:7.4-alpine
     ports:
       - "6379:6379"
 
   redis-cluster:
     profiles:
       - cluster
-    image: grokzen/redis-cluster:7.0.8
+    image: grokzen/redis-cluster:7.2.5
     environment:
       - IP=0.0.0.0
       - INITIAL_PORT=7000
