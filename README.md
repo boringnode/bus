@@ -21,7 +21,8 @@ Currently, it supports the following transports:
 <p>
 👉 <strong>Memory:</strong> A simple in-memory transport for testing purposes.<br />
 👉 <strong>Redis:</strong> A Redis transport for production usage.<br />
-👉 <strong>Mqtt:</strong> A Mqtt transport for production usage.
+👉 <strong>Mqtt:</strong> A Mqtt transport for production usage.<br />
+👉 <strong>Postgres:</strong> A PostgreSQL transport using NOTIFY/LISTEN for production usage.
 </p>
 
 ## Table of Contents
@@ -49,6 +50,7 @@ The module exposes a manager that can be used to register buses.
 import { BusManager } from '@boringnode/bus'
 import { redis } from '@boringnode/bus/transports/redis'
 import { mqtt } from '@boringnode/bus/transports/mqtt'
+import { postgres } from '@boringnode/bus/transports/postgres'
 import { memory } from '@boringnode/bus/transports/memory'
 
 const manager = new BusManager({
@@ -69,7 +71,16 @@ const manager = new BusManager({
         port: 1883,
       }),
     },
-  }
+    postgres: {
+      transport: postgres({
+        host: 'localhost',
+        port: 5432,
+        database: 'mydb',
+        user: 'postgres',
+        password: 'password',
+      }),
+    },
+  },
 })
 ```
 
@@ -88,6 +99,7 @@ By default, the bus will use the `default` transport. You can specify different 
 ```typescript
 manager.use('redis').publish('channel', 'Hello world')
 manager.use('mqtt').publish('channel', 'Hello world')
+manager.use('postgres').publish('channel', 'Hello world')
 ```
 
 ### Without the manager
@@ -105,8 +117,8 @@ const transport = new RedisTransport({
 
 const bus = new Bus(transport, {
   retryQueue: {
-    retryInterval: '100ms'
-  }
+    retryInterval: '100ms',
+  },
 })
 ```
 
@@ -126,10 +138,10 @@ const manager = new BusManager({
         port: 6379,
       }),
       retryQueue: {
-        retryInterval: '100ms'
-      }
+        retryInterval: '100ms',
+      },
     },
-  }
+  },
 })
 
 manager.use('redis').publish('channel', 'Hello World')
@@ -143,13 +155,13 @@ You have multiple options to configure the retry queue.
 export interface RetryQueueOptions {
   // Enable the retry queue (default: true)
   enabled?: boolean
-  
+
   // Defines if we allow duplicates messages in the retry queue (default: true)
   removeDuplicates?: boolean
-  
+
   // The maximum size of the retry queue (default: null)
   maxSize?: number | null
-  
+
   // The interval between each retry (default: false)
   retryInterval?: Duration | false
 }
@@ -169,7 +181,7 @@ const buggyTransport = new ChaosTransport(new MemoryTransport())
 const bus = new Bus(buggyTransport)
 
 /**
- * Now, every time you will try to publish a message, the transport 
+ * Now, every time you will try to publish a message, the transport
  * will throw an error.
  */
 buggyTransport.alwaysThrow()
