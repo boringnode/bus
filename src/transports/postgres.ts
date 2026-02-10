@@ -25,11 +25,14 @@ export function postgres(config: PostgresTransportConfig, encoder?: TransportEnc
 
 export class PostgresTransport implements Transport {
   readonly #publisher: Client
-  readonly #subscriber: Client
+  #subscriber: Client
   readonly #encoder: TransportEncoder
   readonly #channelHandlers: Map<string, SubscribeHandler<any>> = new Map()
   #publisherConnected: boolean = false
   #subscriberConnected: boolean = false
+  #gracefulDisconnect: boolean = false
+  #config: PostgresTransportConfig
+  #reconnectCallback: (() => void) | undefined
 
   #id: string | undefined
 
@@ -38,20 +41,14 @@ export class PostgresTransport implements Transport {
   constructor(options: PostgresTransportConfig | string, encoder?: TransportEncoder) {
     this.#encoder = encoder ?? new JsonEncoder()
 
-    /**
-     * If a connection string is passed, use it for both publisher and subscriber
-     */
     if (typeof options === 'string') {
-      this.#publisher = new Client({ connectionString: options })
-      this.#subscriber = new Client({ connectionString: options })
-      return
+      this.#config = { connectionString: options }
+    } else {
+      this.#config = options
     }
 
-    /**
-     * If a config object is passed, create both publisher and subscriber
-     */
-    this.#publisher = new Client(options)
-    this.#subscriber = new Client(options)
+    this.#publisher = new Client(this.#config)
+    this.#subscriber = new Client(this.#config)
   }
 
   setId(id: string): Transport {
@@ -72,6 +69,7 @@ export class PostgresTransport implements Transport {
   }
 
   async disconnect(): Promise<void> {
+    this.#gracefulDisconnect = true
     this.#publisherConnected = false
     this.#subscriberConnected = false
 
@@ -117,42 +115,51 @@ export class PostgresTransport implements Transport {
     // Store the handler for this channel
     this.#channelHandlers.set(channel, handler)
 
-    // Set up the notification listener if not already set
-    if (this.#subscriber.listenerCount('notification') === 0) {
-      this.#subscriber.on('notification', (msg) => {
-        if (msg.channel) {
-          const channelHandler = this.#channelHandlers.get(msg.channel)
-          if (channelHandler && msg.payload) {
-            debug('received message for channel "%s"', msg.channel)
-
-            try {
-              const data = this.#encoder.decode<TransportMessage<T>>(msg.payload)
-
-              /**
-               * Ignore messages published by this bus instance
-               */
-              if (data.busId === this.#id) {
-                debug('ignoring message published by the same bus instance')
-                return
-              }
-
-              channelHandler(data.payload)
-            } catch (error) {
-              debug('error decoding message: %o', error)
-            }
-          }
-        }
-      })
-    }
+    this.#ensureNotificationListener()
 
     // Subscribe to the channel using LISTEN
     const escapedChannel = this.#subscriber.escapeIdentifier(channel)
     await this.#subscriber.query(`LISTEN ${escapedChannel}`)
   }
 
+  #ensureNotificationListener() {
+    // Set up the notification listener if not already set
+    if (this.#subscriber.listenerCount('notification') > 0) {
+      return
+    }
+
+    this.#subscriber.on('notification', (msg) => {
+      if (msg.channel) {
+        const channelHandler = this.#channelHandlers.get(msg.channel)
+        if (channelHandler && msg.payload) {
+          debug('received message for channel "%s"', msg.channel)
+
+          try {
+            const data = this.#encoder.decode<TransportMessage<any>>(msg.payload)
+
+            /**
+             * Ignore messages published by this bus instance
+             */
+            if (data.busId === this.#id) {
+              debug('ignoring message published by the same bus instance')
+              return
+            }
+
+            channelHandler(data.payload)
+          } catch (error) {
+            debug('error decoding message: %o', error)
+          }
+        }
+      }
+    })
+  }
+
   onReconnect(callback: () => void): void {
-    // PostgreSQL client doesn't have built-in reconnection events
-    // We'll listen to connection errors and trigger callback on reconnect
+    this.#reconnectCallback = callback
+    this.#setupReconnectionListener()
+  }
+
+  #setupReconnectionListener() {
     this.#subscriber.on('error', (err) => {
       debug('subscriber error: %o', err)
     })
@@ -160,12 +167,42 @@ export class PostgresTransport implements Transport {
     this.#subscriber.on('end', () => {
       debug('subscriber connection ended')
       this.#subscriberConnected = false
-      // Attempt to reconnect
-      this.#subscriber
+
+      if (this.#gracefulDisconnect) {
+        return
+      }
+
+      this.#attemptReconnection()
+    })
+  }
+
+  #attemptReconnection(attempt = 0) {
+    const baseDelay = 1000
+    const maxDelay = 60000
+    // Exponential backoff with jitter
+    const delay = Math.min(baseDelay * Math.pow(2, attempt), maxDelay) + Math.random() * 1000
+
+    debug('attempting reconnection in %d ms (attempt %d)', delay, attempt)
+
+    setTimeout(() => {
+      if (this.#gracefulDisconnect) return
+
+      const newClient = new Client(this.#config)
+
+      newClient
         .connect()
         .then(() => {
+          this.#subscriber = newClient
           this.#subscriberConnected = true
-          callback()
+          debug('reconnected to postgres')
+
+          this.#ensureNotificationListener()
+          this.#setupReconnectionListener()
+
+          if (this.#reconnectCallback) {
+            this.#reconnectCallback()
+          }
+
           // Re-subscribe to all channels
           for (const channel of this.#channelHandlers.keys()) {
             const escapedChannel = this.#subscriber.escapeIdentifier(channel)
@@ -176,8 +213,9 @@ export class PostgresTransport implements Transport {
         })
         .catch((err) => {
           debug('error reconnecting: %o', err)
+          this.#attemptReconnection(attempt + 1)
         })
-    })
+    }, delay)
   }
 
   async unsubscribe(channel: string): Promise<void> {

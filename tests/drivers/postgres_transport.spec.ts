@@ -7,6 +7,7 @@
 
 import { setTimeout } from 'node:timers/promises'
 import { test } from '@japa/runner'
+import { Client } from 'pg'
 import { PostgreSqlContainer, StartedPostgreSqlContainer } from '@testcontainers/postgresql'
 import { PostgresTransport } from '../../src/transports/postgres.js'
 import { JsonEncoder } from '../../src/encoders/json_encoder.js'
@@ -70,13 +71,25 @@ test.group('Postgres Transport', (group) => {
       onReconnectTriggered = true
     })
 
-    await container.restart()
-    await setTimeout(2000)
+    await transport.publish('warmup', 'warmup')
+
+    /**
+     * We use pg_terminate_backend to simulate a connection loss instead of restarting
+     * the container because restarting the container might change the exposed port,
+     * making it impossible for the driver to reconnect (since it relies on the initial
+     * connection string).
+     */
+    const client = new Client({ connectionString: container.getConnectionUri() })
+    await client.connect()
+    await client.query(
+      `SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE pid <> pg_backend_pid() AND datname = current_database()`
+    )
+    await client.end()
+
+    await setTimeout(5000)
 
     assert.isTrue(onReconnectTriggered)
-  })
-    .disableTimeout()
-    .skip(true, 'PostgreSQL client reconnection behavior needs more investigation')
+  }).disableTimeout()
 
   test('message should be encoded and decoded correctly when using JSON encoder', async ({
     assert,
