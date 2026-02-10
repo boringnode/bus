@@ -7,8 +7,10 @@
 
 import type { RedisOptions } from 'ioredis'
 import type { IClientOptions } from 'mqtt'
+import type { ClientConfig } from 'pg'
 
 export type { Redis, Cluster } from 'ioredis'
+export type { Client } from 'pg'
 export type TransportFactory = () => Transport
 
 /**
@@ -64,6 +66,14 @@ export interface MqttTransportConfig {
   port?: number
   protocol?: MqttProtocol
   options?: IClientOptions
+}
+
+export interface PostgresTransportConfig extends ClientConfig {
+  /**
+   * Connection string for PostgreSQL. If provided, it will be used instead
+   * of the individual connection properties.
+   */
+  connectionString?: string
 }
 
 export interface Transport {
