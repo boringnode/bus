@@ -204,10 +204,14 @@ export class PostgresTransport implements Transport {
           }
 
           // Re-subscribe to all channels
-          for (const channel of this.#channelHandlers.keys()) {
-            const escapedChannel = this.#subscriber.escapeIdentifier(channel)
-            this.#subscriber.query(`LISTEN ${escapedChannel}`).catch((err) => {
-              debug('error re-subscribing to channel %s: %o', channel, err)
+          const channels = Array.from(this.#channelHandlers.keys())
+          if (channels.length > 0) {
+            const query = channels
+              .map((channel) => `LISTEN ${this.#subscriber.escapeIdentifier(channel)}`)
+              .join('; ')
+
+            this.#subscriber.query(query).catch((err) => {
+              debug('error re-subscribing to channels: %o', err)
             })
           }
         })
