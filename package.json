@@ -54,7 +54,7 @@
   },
   "dependencies": {
     "@paralleldrive/cuid2": "^3.0.6",
-    "@poppinss/utils": "^6.10.1",
+    "@poppinss/utils": "^7.0.1",
     "object-hash": "^3.0.0"
   },
   "peerDependencies": {
