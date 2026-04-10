@@ -7,8 +7,15 @@
 
 import type { RedisOptions } from 'ioredis'
 import type { IClientOptions } from 'mqtt'
+import type {
+  RedisClientOptions,
+  RedisClusterOptions,
+  createClient,
+  createCluster
+} from 'redis'
 
 export type { Redis, Cluster } from 'ioredis'
+export type { RedisClientType, RedisClusterType } from 'redis'
 export type TransportFactory = () => Transport
 
 /**
@@ -44,6 +51,33 @@ export interface RedisTransportOptions {
    * If true, we will use `messageBuffer` event instead of `message` event
    * that is emitted by ioredis. `messageBuffer` will returns a buffer instead
    * of a string and this is useful when you are dealing with binary data.
+   */
+  useMessageBuffer?: boolean
+}
+
+export interface NodeRedisClientTransportConfig extends RedisClientOptions {
+  /**
+   * If true, we will subscribe in buffer mode.
+   */
+  useMessageBuffer?: boolean
+}
+
+export interface NodeRedisClusterTransportConfig extends RedisClusterOptions {
+  /**
+   * If true, we will subscribe in buffer mode.
+   */
+  useMessageBuffer?: boolean
+}
+
+export type NodeRedisTransportConnection = ReturnType<typeof createClient> | ReturnType<typeof createCluster>
+
+export type NodeRedisTransportConfig =
+  | NodeRedisClientTransportConfig
+  | NodeRedisClusterTransportConfig
+
+export interface NodeRedisTransportOptions {
+  /**
+   * If true, we will subscribe in buffer mode.
    */
   useMessageBuffer?: boolean
 }

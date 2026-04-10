@@ -46,6 +46,7 @@
     "ioredis": "^5.9.0",
     "mqtt": "^5.14.1",
     "prettier": "^3.7.4",
+    "redis": "^5.10.0",
     "release-it": "^19.2.3",
     "testcontainers": "^11.11.0",
     "ts-node-maintained": "^10.9.6",
@@ -58,10 +59,14 @@
     "object-hash": "^3.0.0"
   },
   "peerDependencies": {
-    "ioredis": "^5.0.0"
+    "ioredis": "^5.0.0",
+    "redis": "^5.0.0"
   },
   "peerDependenciesMeta": {
     "ioredis": {
+      "optional": true
+    },
+    "redis": {
       "optional": true
     }
   },
