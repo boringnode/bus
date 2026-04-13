@@ -47,12 +47,13 @@ export class MqttTransport implements Transport {
     await this.#client.endAsync()
   }
 
-  async publish(channel: string, message: any): Promise<void> {
+  async publish(channel: string, message: any): Promise<number> {
     assert(this.#id, 'You must set an id before publishing a message')
 
     const encoded = this.#encoder.encode({ payload: message, busId: this.#id })
 
     await this.#client.publishAsync(channel, encoded)
+    return -1 // undefined
   }
 
   async subscribe<T extends Serializable>(

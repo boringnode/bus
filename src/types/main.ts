@@ -69,7 +69,7 @@ export interface MqttTransportConfig {
 export interface Transport {
   setId: (id: string) => Transport
   onReconnect: (callback: () => void) => void
-  publish: (channel: string, message: Serializable) => Promise<void>
+  publish: (channel: string, message: Serializable) => Promise<number>
   subscribe: <T extends Serializable>(
     channel: string,
     handler: SubscribeHandler<T>

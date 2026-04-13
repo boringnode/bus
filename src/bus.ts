@@ -54,10 +54,10 @@ export class Bus {
     await this.processErrorRetryQueue()
   }
 
-  subscribe<T extends Serializable>(channel: string, handler: SubscribeHandler<T>) {
+  async subscribe<T extends Serializable>(channel: string, handler: SubscribeHandler<T>) {
     debug(`subscribing to channel ${channel}`)
 
-    return this.#transport.subscribe(channel, async (message) => {
+    return await this.#transport.subscribe(channel, async (message) => {
       debug('received message %j from bus', message)
       // @ts-expect-error - TODO: Weird typing issue
       handler(message)
@@ -94,7 +94,7 @@ export class Bus {
     return this.#transport.disconnect()
   }
 
-  unsubscribe(channel: string) {
-    return this.#transport.unsubscribe(channel)
+  async unsubscribe(channel: string) {
+    return await this.#transport.unsubscribe(channel)
   }
 }

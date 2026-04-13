@@ -13,12 +13,13 @@ import { JsonEncoder } from '../encoders/json_encoder.js'
 import type {
   Transport,
   TransportEncoder,
-  TransportMessage,
   Serializable,
   SubscribeHandler,
   RedisTransportConfig,
   RedisTransportOptions,
 } from '../types/main.js'
+
+type Handler = (message: Buffer | string) => void | Promise<void>
 
 export function redis(config: RedisTransportConfig, encoder?: TransportEncoder) {
   return () => new RedisTransport(config, encoder)
@@ -29,6 +30,7 @@ export class RedisTransport implements Transport {
   readonly #subscriber: Redis | Cluster
   readonly #encoder: TransportEncoder
   readonly #useMessageBuffer: boolean = false
+  readonly #handlers = new Map<string, Set<Handler>>()
 
   #id: string | undefined
 
@@ -54,6 +56,7 @@ export class RedisTransport implements Transport {
       this.#publisher = options.duplicate()
       this.#subscriber = options.duplicate()
       this.#useMessageBuffer = transportOptions?.useMessageBuffer ?? false
+      this.#setupSubscriber()
       return
     }
 
@@ -64,6 +67,36 @@ export class RedisTransport implements Transport {
 
     if (typeof options === 'object') {
       this.#useMessageBuffer = options.useMessageBuffer ?? false
+    }
+    this.#setupSubscriber()
+  }
+
+  #setupSubscriber = () => {
+    const event = this.#useMessageBuffer ? 'messageBuffer' : 'message'
+    this.#subscriber.on(event, this.#onMessage)
+  }
+
+  #onMessage = async (receivedChannel: Buffer | string, message: Buffer | string) => {
+    const channel = receivedChannel.toString()
+    const handlers = this.#handlers.get(channel)
+    debug('received message for channel "%s"', channel)
+    if (!handlers || handlers.size === 0) {
+      debug('no handlers for channel "%s"', channel)
+      return
+    }
+    for (const handler of handlers) {
+      await handler(message)
+    }
+  }
+
+  #makeHandler = <T extends Serializable>(handler: SubscribeHandler<T>) => {
+    return async (message: Buffer | string) => {
+      const data = this.#encoder.decode<T>(message)
+      if (data.busId === this.#id) {
+        debug('ignoring message published by the same bus instance')
+        return
+      }
+      await handler(data.payload)
     }
   }
 
@@ -77,45 +110,25 @@ export class RedisTransport implements Transport {
     await Promise.all([this.#publisher.quit(), this.#subscriber.quit()])
   }
 
-  async publish(channel: string, message: Serializable): Promise<void> {
+  async publish(channel: string, message: Serializable): Promise<number> {
     assert(this.#id, 'You must set an id before publishing a message')
 
     const encoded = this.#encoder.encode({ payload: message, busId: this.#id })
 
-    await this.#publisher.publish(channel, encoded)
+    return await this.#publisher.publish(channel, encoded)
   }
 
   async subscribe<T extends Serializable>(
     channel: string,
     handler: SubscribeHandler<T>
   ): Promise<void> {
-    this.#subscriber.subscribe(channel, (err) => {
-      if (err) {
-        throw err
-      }
-    })
-
-    const event = this.#useMessageBuffer ? 'messageBuffer' : 'message'
-    this.#subscriber.on(event, (receivedChannel: Buffer | string, message: Buffer | string) => {
-      receivedChannel = receivedChannel.toString()
-
-      if (channel !== receivedChannel) return
-
-      debug('received message for channel "%s"', channel)
-
-      const data = this.#encoder.decode<TransportMessage<T>>(message)
-
-      /**
-       * Ignore messages published by this bus instance
-       */
-      if (data.busId === this.#id) {
-        debug('ignoring message published by the same bus instance')
-        return
-      }
-
-      // @ts-expect-error - TODO: Weird typing issue
-      handler(data.payload)
-    })
+    let handlers = this.#handlers.get(channel)
+    if (!handlers) {
+      handlers = new Set()
+      this.#handlers.set(channel, handlers)
+      await this.#subscriber.subscribe(channel)
+    }
+    handlers.add(this.#makeHandler(handler))
   }
 
   onReconnect(callback: () => void): void {
@@ -123,6 +136,7 @@ export class RedisTransport implements Transport {
   }
 
   async unsubscribe(channel: string): Promise<void> {
+    this.#handlers.delete(channel)
     await this.#subscriber.unsubscribe(channel)
   }
 }

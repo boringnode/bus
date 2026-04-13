@@ -58,12 +58,12 @@ export class BusManager<KnownTransports extends Record<string, TransportConfig>>
     return this.use().publish(channel, message)
   }
 
-  subscribe<T extends Serializable>(channel: string, handler: SubscribeHandler<T>) {
-    return this.use().subscribe(channel, handler)
+  async subscribe<T extends Serializable>(channel: string, handler: SubscribeHandler<T>) {
+    return await this.use().subscribe(channel, handler)
   }
 
-  unsubscribe(channel: string) {
-    return this.use().unsubscribe(channel)
+  async unsubscribe(channel: string) {
+    return await this.use().unsubscribe(channel)
   }
 
   disconnect() {

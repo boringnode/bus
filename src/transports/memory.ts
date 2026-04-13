@@ -38,16 +38,20 @@ export class MemoryTransport implements Transport {
 
   async publish(channel: string, message: Serializable) {
     const handlers = MemoryTransport.#subscriptions.get(channel)
+    let count: number = 0
 
     if (!handlers) {
-      return
+      return count
     }
 
     for (const { handler, busId } of handlers) {
       if (busId === this.#id) continue
+      count++
 
       handler(message)
     }
+
+    return count
   }
 
   async subscribe<T extends Serializable>(channel: string, handler: SubscribeHandler<T>) {

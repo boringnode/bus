@@ -59,8 +59,8 @@ export class ChaosTransport implements Transport {
     return this.#innerTransport.subscribe(channel, handler)
   }
 
-  unsubscribe(channel: string) {
-    return this.#innerTransport.unsubscribe(channel)
+  async unsubscribe(channel: string) {
+    return await this.#innerTransport.unsubscribe(channel)
   }
 
   disconnect() {
