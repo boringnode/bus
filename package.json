@@ -50,7 +50,7 @@
     "testcontainers": "^11.11.0",
     "ts-node-maintained": "^10.9.6",
     "tsup": "^8.5.1",
-    "typescript": "^5.9.3"
+    "typescript": "^6.0.3"
   },
   "dependencies": {
     "@paralleldrive/cuid2": "^3.0.6",
