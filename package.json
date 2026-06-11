@@ -29,7 +29,7 @@
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
-    "@adonisjs/eslint-config": "^2.1.2",
+    "@adonisjs/eslint-config": "^3.1.0",
     "@adonisjs/prettier-config": "^1.4.5",
     "@adonisjs/tsconfig": "^1.4.1",
     "@japa/assert": "^4.2.0",
