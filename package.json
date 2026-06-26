@@ -46,7 +46,7 @@
     "ioredis": "^5.9.0",
     "mqtt": "^5.14.1",
     "prettier": "^3.7.4",
-    "release-it": "^19.2.3",
+    "release-it": "^20.2.1",
     "testcontainers": "^11.11.0",
     "ts-node-maintained": "^10.9.6",
     "tsup": "^8.5.1",
