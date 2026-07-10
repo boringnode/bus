@@ -8,10 +8,10 @@
 import { setTimeout } from 'node:timers/promises'
 import { test } from '@japa/runner'
 import { Redis, Cluster } from 'ioredis'
-import { RedisContainer, StartedRedisContainer } from '@testcontainers/redis'
+import { RedisContainer, type StartedRedisContainer } from '@testcontainers/redis'
 import { RedisTransport } from '../../src/transports/redis.js'
 import { JsonEncoder } from '../../src/encoders/json_encoder.js'
-import { TransportEncoder, TransportMessage } from '../../src/types/main.js'
+import { type TransportEncoder, type TransportMessage } from '../../src/types/main.js'
 
 test.group('Redis Transport', (group) => {
   let container: StartedRedisContainer

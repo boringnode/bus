@@ -5,17 +5,17 @@
  * @copyright BoringNode
  */
 
-import { connect, MqttClient } from 'mqtt'
+import { connect, type MqttClient } from 'mqtt'
 import { assert } from '@poppinss/utils/assert'
 
 import debug from '../debug.js'
 import {
-  Transport,
-  TransportEncoder,
-  Serializable,
-  SubscribeHandler,
+  type Transport,
+  type TransportEncoder,
+  type Serializable,
+  type SubscribeHandler,
   MqttProtocol,
-  MqttTransportConfig,
+  type MqttTransportConfig,
 } from '../types/main.js'
 import { JsonEncoder } from '../encoders/json_encoder.js'
 import { tryDecodeTransportMessage } from '../transport_message.js'

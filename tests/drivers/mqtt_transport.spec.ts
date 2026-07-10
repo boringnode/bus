@@ -8,11 +8,11 @@
 import { setTimeout } from 'node:timers/promises'
 import { test } from '@japa/runner'
 import { connectAsync } from 'mqtt'
-import { HiveMQContainer, StartedHiveMQContainer } from '@testcontainers/hivemq'
-import { GenericContainer, StartedTestContainer } from 'testcontainers'
+import { HiveMQContainer, type StartedHiveMQContainer } from '@testcontainers/hivemq'
+import { GenericContainer, type StartedTestContainer } from 'testcontainers'
 import { MqttTransport } from '../../src/transports/mqtt.js'
 import { JsonEncoder } from '../../src/encoders/json_encoder.js'
-import { TransportEncoder, TransportMessage } from '../../src/types/main.js'
+import { type TransportEncoder, type TransportMessage } from '../../src/types/main.js'
 
 test.group('Mqtt Transport', (group) => {
   let hiveMqContainer: StartedHiveMQContainer
