@@ -20,7 +20,7 @@ test.group('Mqtt Transport', (group) => {
   let mosquittoContainer: StartedTestContainer
 
   group.setup(async () => {
-    hiveMqContainer = await new HiveMQContainer('hivemq/hivemq-ce:2023.5')
+    hiveMqContainer = await new HiveMQContainer('hivemq/hivemq-ce:2026.5')
       .withExposedPorts({
         container: 1883,
         host: 1884,
