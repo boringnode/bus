@@ -7,6 +7,7 @@
 
 import { setTimeout } from 'node:timers/promises'
 import { test } from '@japa/runner'
+import { connectAsync } from 'mqtt'
 import { HiveMQContainer, StartedHiveMQContainer } from '@testcontainers/hivemq'
 import { GenericContainer, StartedTestContainer } from 'testcontainers'
 import { MqttTransport } from '../../src/transports/mqtt.js'
@@ -129,6 +130,36 @@ test.group('Mqtt Transport', (group) => {
     await setTimeout(200)
 
     await transport2.publish('testing-channel', data)
+  }).waitForDone()
+
+  test('transport should ignore malformed messages', async ({ assert, cleanup }, done) => {
+    assert.plan(1)
+
+    const transport = new MqttTransport({
+      host: hiveMqContainer.getHost(),
+      port: hiveMqContainer.getPort(),
+    }).setId('bus')
+    const publisher = await connectAsync(
+      `mqtt://${hiveMqContainer.getHost()}:${hiveMqContainer.getPort()}`
+    )
+
+    cleanup(async () => {
+      await transport.disconnect()
+      await publisher.endAsync()
+    })
+
+    await transport.subscribe('malformed-message-channel', (payload) => {
+      assert.equal(payload, 'valid')
+      done()
+    })
+
+    await setTimeout(200)
+    await publisher.publishAsync('malformed-message-channel', '{')
+    await publisher.publishAsync('malformed-message-channel', 'null')
+    await publisher.publishAsync(
+      'malformed-message-channel',
+      JSON.stringify({ busId: 'publisher', payload: 'valid' })
+    )
   }).waitForDone()
 
   test('HiveMQ send binary data', async ({ assert, cleanup }, done) => {

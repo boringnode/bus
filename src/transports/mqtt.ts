@@ -12,13 +12,13 @@ import debug from '../debug.js'
 import {
   Transport,
   TransportEncoder,
-  TransportMessage,
   Serializable,
   SubscribeHandler,
   MqttProtocol,
   MqttTransportConfig,
 } from '../types/main.js'
 import { JsonEncoder } from '../encoders/json_encoder.js'
+import { tryDecodeTransportMessage } from '../transport_message.js'
 
 export function mqtt(config: MqttTransportConfig, encoder?: TransportEncoder) {
   return () => new MqttTransport(config, encoder)
@@ -70,7 +70,12 @@ export class MqttTransport implements Transport {
 
       debug('received message for channel "%s"', channel)
 
-      const data = this.#encoder.decode<TransportMessage<T>>(message)
+      const data = tryDecodeTransportMessage<T>(this.#encoder, message)
+
+      if (!data) {
+        debug('ignoring invalid message for channel "%s"', channel)
+        return
+      }
 
       /**
        * Ignore messages published by this bus instance
@@ -80,7 +85,6 @@ export class MqttTransport implements Transport {
         return
       }
 
-      // @ts-expect-error - TODO: Weird typing issue
       handler(data.payload)
     })
   }

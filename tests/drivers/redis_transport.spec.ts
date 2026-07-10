@@ -108,6 +108,31 @@ test.group('Redis Transport', (group) => {
     await transport2.publish('testing-channel', data)
   }).waitForDone()
 
+  test('transport should ignore malformed messages', async ({ assert, cleanup }, done) => {
+    assert.plan(1)
+
+    const transport = new RedisTransport(container.getConnectionUrl()).setId('bus')
+    const publisher = new Redis(container.getConnectionUrl())
+
+    cleanup(async () => {
+      await transport.disconnect()
+      await publisher.quit()
+    })
+
+    await transport.subscribe('malformed-message-channel', (payload) => {
+      assert.equal(payload, 'valid')
+      done()
+    })
+
+    await setTimeout(200)
+    await publisher.publish('malformed-message-channel', '{')
+    await publisher.publish('malformed-message-channel', 'null')
+    await publisher.publish(
+      'malformed-message-channel',
+      JSON.stringify({ busId: 'publisher', payload: 'valid' })
+    )
+  }).waitForDone()
+
   test('send binary data using useMessageBuffer', async ({ assert, cleanup }, done) => {
     assert.plan(1)
 
