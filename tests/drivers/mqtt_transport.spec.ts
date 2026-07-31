@@ -5,7 +5,7 @@
  * @copyright BoringNode
  */
 
-import { setTimeout } from 'node:timers/promises'
+import { setImmediate, setTimeout } from 'node:timers/promises'
 import { test } from '@japa/runner'
 import { connectAsync } from 'mqtt'
 import { HiveMQContainer, type StartedHiveMQContainer } from '@testcontainers/hivemq'
@@ -65,7 +65,7 @@ test.group('Mqtt Transport', (group) => {
     await setTimeout(1000)
   }).disableTimeout()
 
-  test('HiveMQ transport should receive message emitted by another bus', async ({
+  test('HiveMQ subscribe should resolve after the broker acknowledges the subscription', async ({
     assert,
     cleanup,
   }, done) => {
@@ -90,10 +90,107 @@ test.group('Mqtt Transport', (group) => {
       done()
     })
 
-    await setTimeout(200)
-
     await transport2.publish('testing-channel', 'test')
   }).waitForDone()
+
+  test('subscribing to many MQTT channels should not exceed the listener limit', async ({
+    assert,
+    cleanup,
+  }) => {
+    const transport = new MqttTransport({
+      host: hiveMqContainer.getHost(),
+      port: hiveMqContainer.getPort(),
+    }).setId('bus')
+    let listenerWarning: Error | undefined
+
+    const onWarning = (warning: Error) => {
+      if (warning.name === 'MaxListenersExceededWarning') {
+        listenerWarning = warning
+      }
+    }
+
+    process.on('warning', onWarning)
+    cleanup(async () => {
+      process.off('warning', onWarning)
+      await transport.disconnect()
+    })
+
+    await Promise.all(
+      Array.from({ length: 11 }, (_, index) => transport.subscribe(`channel-${index}`, () => {}))
+    )
+    await setImmediate()
+
+    assert.isUndefined(listenerWarning)
+  })
+
+  test('multiple handlers should receive messages from the same MQTT channel', async ({
+    assert,
+    cleanup,
+  }) => {
+    const transport1 = new MqttTransport({
+      host: hiveMqContainer.getHost(),
+      port: hiveMqContainer.getPort(),
+    }).setId('bus1')
+    const transport2 = new MqttTransport({
+      host: hiveMqContainer.getHost(),
+      port: hiveMqContainer.getPort(),
+    }).setId('bus2')
+
+    cleanup(async () => {
+      await transport1.disconnect()
+      await transport2.disconnect()
+    })
+
+    const messages: string[] = []
+    let resolveMessages!: () => void
+    const messagesReceived = new Promise<void>((resolve) => (resolveMessages = resolve))
+    const handler = (payload: string) => {
+      messages.push(payload)
+      if (messages.length === 2) resolveMessages()
+    }
+
+    await Promise.all([
+      transport1.subscribe('shared-channel', handler),
+      transport1.subscribe('shared-channel', handler),
+    ])
+    await transport2.publish('shared-channel', 'test')
+    await messagesReceived
+
+    assert.deepEqual(messages, ['test', 'test'])
+  })
+
+  test('MQTT unsubscribe should remove handlers before resubscribing', async ({
+    assert,
+    cleanup,
+  }) => {
+    const transport1 = new MqttTransport({
+      host: hiveMqContainer.getHost(),
+      port: hiveMqContainer.getPort(),
+    }).setId('bus1')
+    const transport2 = new MqttTransport({
+      host: hiveMqContainer.getHost(),
+      port: hiveMqContainer.getPort(),
+    }).setId('bus2')
+    let previousHandlerCalls = 0
+
+    cleanup(async () => {
+      await transport1.disconnect()
+      await transport2.disconnect()
+    })
+
+    await transport1.subscribe('resubscribe-channel', () => {
+      previousHandlerCalls++
+    })
+    await transport1.unsubscribe('resubscribe-channel')
+
+    let resolveMessage!: (payload: string) => void
+    const message = new Promise<string>((resolve) => (resolveMessage = resolve))
+    await transport1.subscribe('resubscribe-channel', resolveMessage)
+    await transport2.publish('resubscribe-channel', 'test')
+    await message
+
+    assert.equal(previousHandlerCalls, 0)
+  })
 
   test('HiveMQ message should be encoded and decoded correctly when using JSON encoder', async ({
     assert,
@@ -245,8 +342,6 @@ test.group('Mqtt Transport', (group) => {
       done()
     })
 
-    await setTimeout(200)
-
     await transport2.publish('testing-channel', 'test')
   }).waitForDone()
 
@@ -368,8 +463,6 @@ test.group('Mqtt Transport', (group) => {
       assert.equal(payload, 'test')
       done()
     })
-
-    await setTimeout(200)
 
     await transport2.publish('testing-channel', 'test')
   }).waitForDone()

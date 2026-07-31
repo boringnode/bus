@@ -29,12 +29,14 @@ export class MqttTransport implements Transport {
   #client: MqttClient
   #url: string
   readonly #encoder: TransportEncoder
+  readonly #handlers = new Map<string, SubscribeHandler<any>[]>()
 
   constructor(config: MqttTransportConfig, encoder?: TransportEncoder) {
     this.#encoder = encoder ?? new JsonEncoder()
     this.#url = `${config.protocol || MqttProtocol.MQTT}://${config.host}${config.port ? `:${config.port}` : ''}`
 
     this.#client = connect(this.#url, config.options ?? {})
+    this.#client.on('message', this.#onMessage)
   }
 
   setId(id: string): Transport {
@@ -59,34 +61,19 @@ export class MqttTransport implements Transport {
     channel: string,
     handler: SubscribeHandler<T>
   ): Promise<void> {
-    this.#client.subscribe(channel, (err) => {
-      if (err) {
-        throw err
+    const handlers = this.#handlers.get(channel) ?? []
+    handlers.push(handler)
+    this.#handlers.set(channel, handlers)
+
+    try {
+      await this.#client.subscribeAsync(channel)
+    } catch (error) {
+      handlers.splice(handlers.indexOf(handler), 1)
+      if (handlers.length === 0) {
+        this.#handlers.delete(channel)
       }
-    })
-
-    this.#client.on('message', (receivedChannel: string, message: Buffer | string) => {
-      if (channel !== receivedChannel) return
-
-      debug('received message for channel "%s"', channel)
-
-      const data = tryDecodeTransportMessage<T>(this.#encoder, message)
-
-      if (!data) {
-        debug('ignoring invalid message for channel "%s"', channel)
-        return
-      }
-
-      /**
-       * Ignore messages published by this bus instance
-       */
-      if (data.busId === this.#id) {
-        debug('ignoring message published by the same bus instance')
-        return
-      }
-
-      handler(data.payload)
-    })
+      throw error
+    }
   }
 
   onReconnect(): void {
@@ -95,5 +82,33 @@ export class MqttTransport implements Transport {
 
   async unsubscribe(channel: string): Promise<void> {
     await this.#client.unsubscribeAsync(channel)
+    this.#handlers.delete(channel)
+  }
+
+  #onMessage = (channel: string, message: Buffer | string) => {
+    const handlers = this.#handlers.get(channel)
+
+    if (!handlers) return
+
+    debug('received message for channel "%s"', channel)
+
+    const data = tryDecodeTransportMessage(this.#encoder, message)
+
+    if (!data) {
+      debug('ignoring invalid message for channel "%s"', channel)
+      return
+    }
+
+    /**
+     * Ignore messages published by this bus instance
+     */
+    if (data.busId === this.#id) {
+      debug('ignoring message published by the same bus instance')
+      return
+    }
+
+    for (const handler of handlers) {
+      handler(data.payload)
+    }
   }
 }
