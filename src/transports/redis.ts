@@ -29,6 +29,7 @@ export class RedisTransport implements Transport {
   readonly #subscriber: Redis | Cluster
   readonly #encoder: TransportEncoder
   readonly #useMessageBuffer: boolean = false
+  readonly #handlers = new Map<string, SubscribeHandler<any>[]>()
 
   #id: string | undefined
 
@@ -54,17 +55,19 @@ export class RedisTransport implements Transport {
       this.#publisher = options.duplicate()
       this.#subscriber = options.duplicate()
       this.#useMessageBuffer = transportOptions?.useMessageBuffer ?? false
-      return
+    } else {
+      // @ts-expect-error - merged definitions of overloaded constructor is not public
+      this.#publisher = new Redis(options)
+      // @ts-expect-error - merged definitions of overloaded constructor is not public
+      this.#subscriber = new Redis(options)
+
+      if (typeof options === 'object') {
+        this.#useMessageBuffer = options.useMessageBuffer ?? false
+      }
     }
 
-    // @ts-expect-error - merged definitions of overloaded constructor is not public
-    this.#publisher = new Redis(options)
-    // @ts-expect-error - merged definitions of overloaded constructor is not public
-    this.#subscriber = new Redis(options)
-
-    if (typeof options === 'object') {
-      this.#useMessageBuffer = options.useMessageBuffer ?? false
-    }
+    const event = this.#useMessageBuffer ? 'messageBuffer' : 'message'
+    this.#subscriber.on(event, this.#onMessage)
   }
 
   setId(id: string): Transport {
@@ -89,38 +92,17 @@ export class RedisTransport implements Transport {
     channel: string,
     handler: SubscribeHandler<T>
   ): Promise<void> {
-    const event = this.#useMessageBuffer ? 'messageBuffer' : 'message'
-    const listener = (receivedChannel: Buffer | string, message: Buffer | string) => {
-      receivedChannel = receivedChannel.toString()
-
-      if (channel !== receivedChannel) return
-
-      debug('received message for channel "%s"', channel)
-
-      const data = tryDecodeTransportMessage<T>(this.#encoder, message)
-
-      if (!data) {
-        debug('ignoring invalid message for channel "%s"', channel)
-        return
-      }
-
-      /**
-       * Ignore messages published by this bus instance
-       */
-      if (data.busId === this.#id) {
-        debug('ignoring message published by the same bus instance')
-        return
-      }
-
-      handler(data.payload)
-    }
-
-    this.#subscriber.on(event, listener)
+    const handlers = this.#handlers.get(channel) ?? []
+    handlers.push(handler)
+    this.#handlers.set(channel, handlers)
 
     try {
       await this.#subscriber.subscribe(channel)
     } catch (error) {
-      this.#subscriber.off(event, listener)
+      handlers.splice(handlers.indexOf(handler), 1)
+      if (handlers.length === 0) {
+        this.#handlers.delete(channel)
+      }
       throw error
     }
   }
@@ -131,5 +113,34 @@ export class RedisTransport implements Transport {
 
   async unsubscribe(channel: string): Promise<void> {
     await this.#subscriber.unsubscribe(channel)
+    this.#handlers.delete(channel)
+  }
+
+  #onMessage = (receivedChannel: Buffer | string, message: Buffer | string) => {
+    const channel = receivedChannel.toString()
+    const handlers = this.#handlers.get(channel)
+
+    if (!handlers) return
+
+    debug('received message for channel "%s"', channel)
+
+    const data = tryDecodeTransportMessage(this.#encoder, message)
+
+    if (!data) {
+      debug('ignoring invalid message for channel "%s"', channel)
+      return
+    }
+
+    /**
+     * Ignore messages published by this bus instance
+     */
+    if (data.busId === this.#id) {
+      debug('ignoring message published by the same bus instance')
+      return
+    }
+
+    for (const handler of handlers) {
+      handler(data.payload)
+    }
   }
 }
