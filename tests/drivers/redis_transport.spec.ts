@@ -36,7 +36,7 @@ test.group('Redis Transport', (group) => {
     await setTimeout(1000)
   }).disableTimeout()
 
-  test('transport should receive message emitted by another bus', async ({
+  test('subscribe should resolve after Redis acknowledges the subscription', async ({
     assert,
     cleanup,
   }, done) => {
@@ -54,8 +54,6 @@ test.group('Redis Transport', (group) => {
       assert.equal(payload, 'test')
       done()
     })
-
-    await setTimeout(200)
 
     await transport2.publish('testing-channel', 'test')
   }).waitForDone()

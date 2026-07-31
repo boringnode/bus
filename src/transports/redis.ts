@@ -89,14 +89,8 @@ export class RedisTransport implements Transport {
     channel: string,
     handler: SubscribeHandler<T>
   ): Promise<void> {
-    this.#subscriber.subscribe(channel, (err) => {
-      if (err) {
-        throw err
-      }
-    })
-
     const event = this.#useMessageBuffer ? 'messageBuffer' : 'message'
-    this.#subscriber.on(event, (receivedChannel: Buffer | string, message: Buffer | string) => {
+    const listener = (receivedChannel: Buffer | string, message: Buffer | string) => {
       receivedChannel = receivedChannel.toString()
 
       if (channel !== receivedChannel) return
@@ -119,7 +113,16 @@ export class RedisTransport implements Transport {
       }
 
       handler(data.payload)
-    })
+    }
+
+    this.#subscriber.on(event, listener)
+
+    try {
+      await this.#subscriber.subscribe(channel)
+    } catch (error) {
+      this.#subscriber.off(event, listener)
+      throw error
+    }
   }
 
   onReconnect(callback: () => void): void {
