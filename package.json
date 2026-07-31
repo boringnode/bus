@@ -2,6 +2,10 @@
   "name": "@boringnode/bus",
   "description": "A simple and lean driver-based service bus implementation",
   "version": "0.9.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/boringnode/bus"
+  },
   "engines": {
     "node": ">=20.6"
   },
