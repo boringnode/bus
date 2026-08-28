@@ -68,7 +68,15 @@ export class MemoryTransport implements Transport {
   }
 
   async disconnect() {
-    MemoryTransport.#subscriptions.clear()
+    for (const [channel, handlers] of MemoryTransport.#subscriptions) {
+      const remainingHandlers = handlers.filter((handler) => handler.busId !== this.#id)
+
+      if (remainingHandlers.length === 0) {
+        MemoryTransport.#subscriptions.delete(channel)
+      } else {
+        MemoryTransport.#subscriptions.set(channel, remainingHandlers)
+      }
+    }
   }
 
   onReconnect(_callback: () => void) {}

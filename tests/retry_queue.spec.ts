@@ -24,6 +24,64 @@ test.group('RetryQueue', () => {
 
     assert.instanceOf(queue.getInternalQueue(), RetryQueueWithDuplicates)
   })
+
+  test('should process queued messages only once when processing concurrently', async ({
+    assert,
+  }) => {
+    const queue = new RetryQueue({ removeDuplicates: false })
+    const processedMessages: string[] = []
+    let notifyHandlerStarted!: () => void
+    const handlerStarted = new Promise<void>((resolve) => (notifyHandlerStarted = resolve))
+    let releaseHandlers!: () => void
+    const handlersReleased = new Promise<void>((resolve) => (releaseHandlers = resolve))
+
+    queue.enqueue(channel, { busId: 'testing', payload: 'foo' })
+    queue.enqueue(channel, { busId: 'testing', payload: 'bar' })
+
+    const handler = async (_channel: string, message: { payload: any }) => {
+      processedMessages.push(message.payload)
+      notifyHandlerStarted()
+      await handlersReleased
+      return true
+    }
+
+    const firstProcessing = queue.process(handler)
+    await handlerStarted
+    const secondProcessing = queue.process(handler)
+    releaseHandlers()
+
+    await Promise.all([firstProcessing, secondProcessing])
+
+    assert.deepEqual(processedMessages, ['foo', 'bar'])
+  })
+
+  test('should process queued messages only once when processing is reentrant', async ({
+    assert,
+  }) => {
+    const queue = new RetryQueue({ removeDuplicates: false })
+    const processedMessages: string[] = []
+    let didReenter = false
+    let reentrantProcessing: Promise<void> | undefined
+
+    queue.enqueue(channel, { busId: 'testing', payload: 'foo' })
+    queue.enqueue(channel, { busId: 'testing', payload: 'bar' })
+
+    const handler = async (_channel: string, message: { payload: any }) => {
+      processedMessages.push(message.payload)
+
+      if (!didReenter) {
+        didReenter = true
+        reentrantProcessing = queue.process(handler)
+      }
+
+      return true
+    }
+
+    const processing = queue.process(handler)
+    await Promise.all([processing, reentrantProcessing!])
+
+    assert.deepEqual(processedMessages, ['foo', 'bar'])
+  })
 })
 
 test.group('RetryQueueWithDuplicates', () => {
@@ -168,6 +226,34 @@ test.group('RetryQueueWithoutDuplicates', () => {
 
     assert.equal(firstQueueSizeSnapshot, 1)
     assert.equal(secondQueueSizeSnapshot, 1)
+  })
+
+  test('enqueues and processes the same payload for different channels', async ({ assert }) => {
+    const queue = new RetryQueueWithoutDuplicates()
+    const processedChannels: string[] = []
+
+    assert.isTrue(queue.enqueue('first-channel', { busId: 'testing', payload: 'foo' }))
+    assert.isTrue(queue.enqueue('second-channel', { busId: 'testing', payload: 'foo' }))
+    assert.equal(queue.size(), 2)
+
+    await queue.process(async (processedChannel) => {
+      processedChannels.push(processedChannel)
+      return true
+    })
+
+    assert.deepEqual(processedChannels, ['first-channel', 'second-channel'])
+    assert.equal(queue.size(), 0)
+  })
+
+  test('does not evict a queued message when rejecting a duplicate at max size', ({ assert }) => {
+    const queue = new RetryQueueWithoutDuplicates({ maxSize: 2 })
+
+    queue.enqueue(channel, { busId: 'testing', payload: 'foo' })
+    queue.enqueue(channel, { busId: 'testing', payload: 'bar' })
+
+    assert.isFalse(queue.enqueue(channel, { busId: 'testing', payload: 'bar' }))
+    assert.equal(queue.size(), 2)
+    assert.equal(queue.dequeue()!.payload, 'foo')
   })
 
   test('should enqueue multiple messages', ({ assert }) => {

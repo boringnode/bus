@@ -41,4 +41,32 @@ test.group('Memory Transport', () => {
 
     await transport2.publish('testing-channel', 'test')
   }).waitForDone()
+
+  test('disconnecting one transport should preserve other transport subscriptions', async ({
+    assert,
+    cleanup,
+  }) => {
+    const subscriber = new MemoryTransport().setId('subscriber')
+    const disconnected = new MemoryTransport().setId('disconnected')
+    const publisher = new MemoryTransport().setId('publisher')
+    let receivedMessages = 0
+    let disconnectedReceivedMessages = 0
+
+    cleanup(async () => {
+      await subscriber.disconnect()
+      await publisher.disconnect()
+    })
+
+    await subscriber.subscribe('testing-channel', () => {
+      receivedMessages++
+    })
+    await disconnected.subscribe('testing-channel', () => {
+      disconnectedReceivedMessages++
+    })
+    await disconnected.disconnect()
+    await publisher.publish('testing-channel', 'test')
+
+    assert.equal(receivedMessages, 1)
+    assert.equal(disconnectedReceivedMessages, 0)
+  })
 })

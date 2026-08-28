@@ -131,4 +131,20 @@ test.group('Bus', () => {
 
     assert.deepEqual(bus.getRetryQueue().size(), 1)
   })
+
+  test('should not duplicate a queued item when a retry fails', async ({ assert, cleanup }) => {
+    const transport = new ChaosTransport(new MemoryTransport())
+    const bus = new Bus(transport, { retryQueue: { removeDuplicates: false } })
+
+    cleanup(async () => {
+      await bus.disconnect()
+    })
+
+    transport.alwaysThrow()
+
+    await bus.publish(kTestingChannel, 'test')
+    await bus.processErrorRetryQueue()
+
+    assert.equal(bus.getRetryQueue().size(), 1)
+  })
 })

@@ -23,8 +23,8 @@ export class RetryQueueWithoutDuplicates {
     this.#messageHasher = new MessageHasher()
   }
 
-  #generateMessageHash(message: TransportMessage) {
-    return this.#messageHasher.hash(message.payload)
+  #generateMessageHash(channel: string, message: TransportMessage) {
+    return this.#messageHasher.hash({ channel, payload: message.payload })
   }
 
   size() {
@@ -48,14 +48,14 @@ export class RetryQueueWithoutDuplicates {
   enqueue(channel: string, message: TransportMessage) {
     if (!this.#enabled) return false
 
-    if (this.#maxSize && this.#queue.size >= this.#maxSize) {
-      this.dequeue()
-    }
-
-    const hash = this.#generateMessageHash(message)
+    const hash = this.#generateMessageHash(channel, message)
 
     if (this.#queue.has(hash)) {
       return false
+    }
+
+    if (this.#maxSize && this.#queue.size >= this.#maxSize) {
+      this.dequeue()
     }
 
     this.#queue.set(hash, { channel, message })
@@ -66,10 +66,10 @@ export class RetryQueueWithoutDuplicates {
   dequeue() {
     if (!this.#enabled) return
 
-    const { message } = this.#queue.values().next().value
+    const { channel, message } = this.#queue.values().next().value
 
     if (message) {
-      this.#queue.delete(this.#generateMessageHash(message))
+      this.#queue.delete(this.#generateMessageHash(channel, message))
 
       return message
     }

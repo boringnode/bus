@@ -12,6 +12,7 @@ import type { TransportMessage, RetryQueueOptions } from './types/main.js'
 export class RetryQueue {
   readonly #options: RetryQueueOptions
   readonly #queue: RetryQueueWithDuplicates | RetryQueueWithoutDuplicates
+  #processing: Promise<void> | undefined
 
   constructor(params: RetryQueueOptions = {}) {
     const { enabled = true, maxSize = null, removeDuplicates = true } = params
@@ -38,8 +39,15 @@ export class RetryQueue {
     return this.#queue.size()
   }
 
-  async process(handler: (channel: string, message: TransportMessage) => Promise<boolean>) {
-    return this.#queue.process(handler)
+  process(handler: (channel: string, message: TransportMessage) => Promise<boolean>) {
+    if (this.#processing) return this.#processing
+
+    const processing = Promise.resolve().then(() => this.#queue.process(handler))
+    this.#processing = processing.finally(() => {
+      this.#processing = undefined
+    })
+
+    return this.#processing
   }
 
   enqueue(channel: string, message: TransportMessage) {
