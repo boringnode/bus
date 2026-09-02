@@ -54,7 +54,7 @@
     "release-it": "^20.2.1",
     "testcontainers": "^12.0.4",
     "tsup": "^8.5.1",
-    "typescript": "^5.9.3"
+    "typescript": "^7.0.2"
   },
   "dependencies": {
     "@paralleldrive/cuid2": "^3.3.0",
