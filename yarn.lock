@@ -130,7 +130,7 @@ __metadata:
     tsup: "npm:^8.5.1"
     typescript: "npm:^5.9.3"
   peerDependencies:
-    ioredis: ^5.0.0
+    ioredis: ^5.0.0 || ^6.0.0
   peerDependenciesMeta:
     ioredis:
       optional: true
