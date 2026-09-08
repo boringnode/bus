@@ -5,8 +5,10 @@
  * @copyright BoringNode
  */
 
-import { Redis, Cluster } from 'ioredis'
+import { Redis } from 'ioredis'
+import type { Cluster } from 'ioredis'
 import { assert } from '@poppinss/utils/assert'
+import { InvalidArgumentsException } from '@poppinss/utils/exception'
 
 import debug from '../debug.js'
 import { JsonEncoder } from '../encoders/json_encoder.js'
@@ -22,6 +24,58 @@ import type {
 
 export function redis(config: RedisTransportConfig, encoder?: TransportEncoder) {
   return () => new RedisTransport(config, encoder)
+}
+
+/**
+ * Detect an existing `ioredis` client by its shape rather than with `instanceof`.
+ *
+ * `instanceof` is evaluated against the copy of `ioredis` this package resolved.
+ * When the host application resolves a different copy - a different major, or
+ * simply a duplicated one in the dependency tree - the check returns `false` for
+ * a perfectly valid client and we would fall through to `new Redis(client)`,
+ * which silently connects to `127.0.0.1:6379`.
+ *
+ * `duplicate` and `sendCommand` are on the prototype of both `Redis` and
+ * `Cluster` in every major, and neither name exists in `RedisOptions` or
+ * `ClusterOptions`, so an options object can never be mistaken for a client.
+ */
+function isRedisClient(value: unknown): value is Redis | Cluster {
+  if (typeof value !== 'object' || value === null) return false
+
+  const candidate = value as Partial<Redis>
+
+  return typeof candidate.duplicate === 'function' && typeof candidate.sendCommand === 'function'
+}
+
+/**
+ * `Redis#duplicate` and `Cluster#duplicate` are both parameterless-callable at
+ * runtime, but TypeScript cannot resolve the call against a `Redis | Cluster`
+ * union: from ioredis 6 on, both signatures are generic over the reply mapping
+ * and none of them is compatible with the other. Going through a narrow local
+ * signature keeps the source compiling against ioredis 5 and 6 alike.
+ */
+function duplicateClient(client: Redis | Cluster): Redis | Cluster {
+  return (client.duplicate as unknown as () => Redis | Cluster)()
+}
+
+/**
+ * Values that look like a client - they carry a `status`, an `options` bag and
+ * an `emit` method - but that we could not recognize as one. None of those
+ * names are valid `ioredis` options, so a legitimate configuration object never
+ * lands here. Rather than quietly building a connection to `127.0.0.1:6379`
+ * out of it, we fail loudly.
+ */
+function looksLikeUnsupportedRedisClient(value: unknown): boolean {
+  if (typeof value !== 'object' || value === null) return false
+
+  const candidate = value as Record<string, unknown>
+
+  return (
+    typeof candidate.status === 'string' &&
+    typeof candidate.options === 'object' &&
+    candidate.options !== null &&
+    typeof candidate.emit === 'function'
+  )
 }
 
 export class RedisTransport implements Transport {
@@ -51,11 +105,18 @@ export class RedisTransport implements Transport {
      * If an existing Redis or Cluster instance is passed, we duplicate it
      * to have separate connections for publisher and subscriber
      */
-    if (options instanceof Redis || options instanceof Cluster) {
-      this.#publisher = options.duplicate()
-      this.#subscriber = options.duplicate()
+    if (isRedisClient(options)) {
+      this.#publisher = duplicateClient(options)
+      this.#subscriber = duplicateClient(options)
       this.#useMessageBuffer = transportOptions?.useMessageBuffer ?? false
     } else {
+      if (looksLikeUnsupportedRedisClient(options)) {
+        throw new InvalidArgumentsException(
+          'Cannot use the given Redis connection with "RedisTransport". Expected an "ioredis" ' +
+            'client exposing "duplicate()" and "sendCommand()", or a connection options object.'
+        )
+      }
+
       // @ts-expect-error - merged definitions of overloaded constructor is not public
       this.#publisher = new Redis(options)
       // @ts-expect-error - merged definitions of overloaded constructor is not public
