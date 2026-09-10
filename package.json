@@ -40,25 +40,25 @@
     "@japa/expect-type": "^2.0.4",
     "@japa/runner": "^5.3.0",
     "@poppinss/ts-exec": "^1.4.4",
-    "@swc/core": "^1.15.43",
-    "@testcontainers/hivemq": "^12.0.4",
-    "@testcontainers/redis": "^12.0.4",
+    "@swc/core": "^1.16.2",
+    "@testcontainers/hivemq": "^12.1.0",
+    "@testcontainers/redis": "^12.1.0",
     "@types/node": "^20.19.43",
     "@types/object-hash": "^3.0.6",
     "c8": "^11.0.0",
     "del-cli": "^7.0.0",
-    "eslint": "^10.6.0",
+    "eslint": "^10.10.0",
     "ioredis": "^5.11.1",
     "mqtt": "^5.15.2",
-    "prettier": "^3.9.4",
+    "prettier": "^3.9.6",
     "release-it": "^20.2.1",
-    "testcontainers": "^12.0.4",
+    "testcontainers": "^12.1.0",
     "tsup": "^8.5.1",
     "typescript": "^5.9.3"
   },
   "dependencies": {
     "@paralleldrive/cuid2": "^3.3.0",
-    "@poppinss/utils": "^7.0.1",
+    "@poppinss/utils": "^7.1.0",
     "object-hash": "^3.0.0"
   },
   "peerDependencies": {
@@ -100,5 +100,5 @@
       "skipChecks": true
     }
   },
-  "packageManager": "yarn@4.17.1+sha512.ccbfabf7d7b6b32075088be9386fb9a2e00bb6887ef07fa56effabc890a56d53da1ccc4128d62db245fcbd3961b236d75335bdf7d5320ed6eafb7588b7ad4697"
+  "packageManager": "yarn@4.18.0"
 }
