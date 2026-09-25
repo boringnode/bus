@@ -45,7 +45,7 @@
     "@testcontainers/redis": "^12.0.4",
     "@types/node": "^20.19.43",
     "@types/object-hash": "^3.0.6",
-    "c8": "^11.0.0",
+    "c8": "^12.0.0",
     "del-cli": "^7.0.0",
     "eslint": "^10.6.0",
     "ioredis": "^5.11.1",
