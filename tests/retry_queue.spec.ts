@@ -82,6 +82,15 @@ test.group('RetryQueue', () => {
 
     assert.deepEqual(processedMessages, ['foo', 'bar'])
   })
+
+  test('should ignore dequeue on an empty queue', ({ assert }) => {
+    for (const removeDuplicates of [true, false]) {
+      const queue = new RetryQueue({ removeDuplicates })
+
+      assert.doesNotThrow(() => queue.dequeue())
+      assert.equal(queue.size(), 0)
+    }
+  })
 })
 
 test.group('RetryQueueWithDuplicates', () => {
@@ -288,7 +297,7 @@ test.group('RetryQueueWithoutDuplicates', () => {
     while (queue.size() > 0) queuedItems.push(queue.dequeue())
 
     assert.deepEqual(
-      queuedItems.map((i) => i.payload),
+      queuedItems.map((i) => i!.payload),
       [1, 2, 3, 4, 5]
     )
   })

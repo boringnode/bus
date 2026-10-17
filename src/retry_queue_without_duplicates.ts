@@ -66,12 +66,12 @@ export class RetryQueueWithoutDuplicates {
   dequeue() {
     if (!this.#enabled) return
 
-    const { channel, message } = this.#queue.values().next().value
+    const [first] = this.#queue
 
-    if (message) {
-      this.#queue.delete(this.#generateMessageHash(channel, message))
+    if (first) {
+      this.#queue.delete(first[0])
 
-      return message
+      return first[1].message
     }
   }
 }
