@@ -7,12 +7,35 @@
 
 import { setImmediate, setTimeout } from 'node:timers/promises'
 import { test } from '@japa/runner'
-import { connectAsync } from 'mqtt'
+import { connect, connectAsync } from 'mqtt'
 import { HiveMQContainer, type StartedHiveMQContainer } from '@testcontainers/hivemq'
 import { GenericContainer, type StartedTestContainer } from 'testcontainers'
 import { MqttTransport } from '../../src/transports/mqtt.js'
 import { JsonEncoder } from '../../src/encoders/json_encoder.js'
 import { type TransportEncoder, type TransportMessage } from '../../src/types/core.js'
+
+/**
+ * EMQX accepts TCP connections several seconds before it answers MQTT
+ * CONNECT packets, so a port check is not enough to know it is ready.
+ */
+async function waitForMqttBroker(url: string) {
+  for (let attempt = 0; attempt < 60; attempt++) {
+    const isReady = await new Promise<boolean>((resolve) => {
+      let connected = false
+      const client = connect(url, { reconnectPeriod: 0, connectTimeout: 1000 })
+      client.once('connect', () => {
+        connected = true
+        client.end()
+      })
+      client.once('close', () => client.end(true, () => resolve(connected)))
+    })
+
+    if (isReady) return
+    await setTimeout(500)
+  }
+
+  throw new Error(`MQTT broker at ${url} is not ready`)
+}
 
 test.group('Mqtt Transport', (group) => {
   let hiveMqContainer: StartedHiveMQContainer
@@ -27,6 +50,9 @@ test.group('Mqtt Transport', (group) => {
       })
       .start()
     emqxContainer = await new GenericContainer('emqx/emqx').withExposedPorts(1883).start()
+    await waitForMqttBroker(
+      `mqtt://${emqxContainer.getHost()}:${emqxContainer.getMappedPort(1883)}`
+    )
     mosquittoContainer = await new GenericContainer('eclipse-mosquitto')
       .withExposedPorts({
         container: 1883,
