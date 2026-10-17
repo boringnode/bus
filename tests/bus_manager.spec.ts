@@ -172,4 +172,32 @@ test.group('Bus Manager', () => {
 
     assert.equal(count, 0)
   })
+
+  test('disconnect every bus and forget them', async ({ assert }) => {
+    const manager = new BusManager({
+      default: 'main',
+      transports: {
+        main: { transport: () => new MemoryTransport() },
+        other: { transport: () => new MemoryTransport() },
+      },
+    })
+
+    const main = manager.use('main')
+    const other = manager.use('other')
+    let count = 0
+
+    await main.subscribe('testing-channel', () => {
+      count++
+    })
+    await other.subscribe('testing-channel', () => {
+      count++
+    })
+
+    await manager.disconnect()
+    await new Bus(new MemoryTransport()).publish('testing-channel', 'test')
+
+    assert.equal(count, 0)
+    assert.notStrictEqual(manager.use('main'), main)
+    assert.notStrictEqual(manager.use('other'), other)
+  })
 })

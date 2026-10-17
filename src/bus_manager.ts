@@ -66,7 +66,14 @@ export class BusManager<KnownTransports extends Record<string, TransportConfig>>
     return this.use().unsubscribe(channel)
   }
 
-  disconnect() {
-    return this.use().disconnect()
+  /**
+   * Disconnects every bus created by the manager. The manager stays usable:
+   * a later `use()` creates a new bus.
+   */
+  async disconnect() {
+    const buses = Object.values(this.#transportsCache) as Bus[]
+    this.#transportsCache = {}
+
+    await Promise.all(buses.map((bus) => bus.disconnect()))
   }
 }
