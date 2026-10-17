@@ -62,10 +62,18 @@ export class Bus {
   subscribe<T extends Serializable>(channel: string, handler: SubscribeHandler<T>) {
     debug(`subscribing to channel ${channel}`)
 
-    return this.#transport.subscribe(channel, async (message) => {
+    return this.#transport.subscribe<T>(channel, async (message) => {
       debug('received message %j from bus', message)
-      // @ts-expect-error - TODO: Weird typing issue
-      handler(message)
+
+      /**
+       * Transports do not await handlers, so an error would become an
+       * unhandled rejection and crash the process.
+       */
+      try {
+        await handler(message)
+      } catch (error) {
+        debug('subscriber handler for channel "%s" failed: %O', channel, error)
+      }
     })
   }
 

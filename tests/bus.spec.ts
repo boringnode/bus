@@ -147,4 +147,36 @@ test.group('Bus', () => {
 
     assert.equal(bus.getRetryQueue().size(), 1)
   })
+
+  test('should isolate handlers that throw', async ({ assert, cleanup }) => {
+    const bus1 = new Bus(new MemoryTransport())
+    const bus2 = new Bus(new MemoryTransport())
+    const unhandledRejections: unknown[] = []
+    const onUnhandledRejection = (reason: unknown) => unhandledRejections.push(reason)
+    process.on('unhandledRejection', onUnhandledRejection)
+
+    cleanup(async () => {
+      process.off('unhandledRejection', onUnhandledRejection)
+      await bus1.disconnect()
+      await bus2.disconnect()
+    })
+
+    let count = 0
+
+    await bus1.subscribe(kTestingChannel, () => {
+      throw new Error('sync boom')
+    })
+    await bus1.subscribe(kTestingChannel, async () => {
+      throw new Error('async boom')
+    })
+    await bus1.subscribe(kTestingChannel, () => {
+      count++
+    })
+
+    assert.isTrue(await bus2.publish(kTestingChannel, 'test'))
+    await setTimeout(10)
+
+    assert.equal(count, 1)
+    assert.deepEqual(unhandledRejections, [])
+  })
 })

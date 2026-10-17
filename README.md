@@ -92,6 +92,8 @@ manager.subscribe('channel', (message) => {
 manager.publish('channel', 'Hello world')
 ```
 
+An error thrown or rejected by a handler does not crash the process, and other handlers still run. The bus catches it and logs it when `NODE_DEBUG=boringnode:bus` is set. Catch errors inside the handler if you need to react to them.
+
 By default, the bus will use the `default` transport. You can specify different transport by using the `use` method.
 
 ```typescript
