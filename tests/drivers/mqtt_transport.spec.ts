@@ -10,6 +10,7 @@ import { test } from '@japa/runner'
 import { connect, connectAsync } from 'mqtt'
 import { HiveMQContainer, type StartedHiveMQContainer } from '@testcontainers/hivemq'
 import { GenericContainer, type StartedTestContainer } from 'testcontainers'
+import { Bus } from '../../src/bus.js'
 import { MqttTransport } from '../../src/transports/mqtt.js'
 import { JsonEncoder } from '../../src/encoders/json_encoder.js'
 import { type TransportEncoder, type TransportMessage } from '../../src/types/core.js'
@@ -446,6 +447,59 @@ test.group('Mqtt Transport', (group) => {
     await setTimeout(200)
     await transport2.publish('testing-channel', data)
   }).waitForDone()
+
+  test('Mosquitto transport should keep a single connection while idle', async ({
+    assert,
+    cleanup,
+  }) => {
+    const transport = new MqttTransport({
+      host: mosquittoContainer.getHost(),
+      port: mosquittoContainer.getMappedPort(1883),
+      options: { clientId: 'idle-bus' },
+    })
+    const bus = new Bus(transport)
+    cleanup(() => bus.disconnect())
+
+    const since = Math.floor(Date.now() / 1000)
+    await setTimeout(3000)
+
+    const logs = await mosquittoContainer.logs({ since })
+    let output = ''
+    logs.on('data', (chunk) => (output += chunk))
+    await setTimeout(200)
+    logs.destroy()
+
+    assert.lengthOf(output.match(/New client connected .* as idle-bus/g) ?? [], 1)
+  }).timeout(10_000)
+
+  test('Mosquitto bus should flush the retry queue once reconnected', async ({
+    assert,
+    cleanup,
+  }) => {
+    const bus = new Bus(
+      new MqttTransport({
+        host: mosquittoContainer.getHost(),
+        port: mosquittoContainer.getMappedPort(1883),
+        options: { queueQoSZero: false },
+      })
+    )
+    cleanup(() => bus.disconnect())
+
+    await bus.subscribe('retry-channel', () => {})
+
+    const restart = mosquittoContainer.restart()
+    while (await bus.publish('retry-channel', 'test')) {
+      await setTimeout(50)
+    }
+    assert.equal(bus.getRetryQueue().size(), 1)
+
+    await restart
+    for (let i = 0; i < 100 && bus.getRetryQueue().size() > 0; i++) {
+      await setTimeout(100)
+    }
+
+    assert.equal(bus.getRetryQueue().size(), 0)
+  }).timeout(30_000)
 
   test('Mosquitto transport should not receive message emitted by itself', async ({
     assert,

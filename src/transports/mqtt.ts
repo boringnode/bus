@@ -24,6 +24,8 @@ export class MqttTransport implements Transport {
   #url: string
   readonly #encoder: TransportEncoder
   readonly #handlers = new Map<string, SubscribeHandler<any>[]>()
+  readonly #reconnectCallbacks: Array<() => void> = []
+  #hasConnected = false
 
   constructor(config: MqttTransportConfig, encoder?: TransportEncoder) {
     this.#encoder = encoder ?? new JsonEncoder()
@@ -31,6 +33,7 @@ export class MqttTransport implements Transport {
 
     this.#client = connect(this.#url, config.options ?? {})
     this.#client.on('message', this.#onMessage)
+    this.#client.on('connect', this.#onConnect)
   }
 
   setId(id: string): Transport {
@@ -40,6 +43,7 @@ export class MqttTransport implements Transport {
   }
 
   async disconnect(): Promise<void> {
+    this.#client.off('connect', this.#onConnect)
     await this.#client.endAsync()
   }
 
@@ -70,13 +74,31 @@ export class MqttTransport implements Transport {
     }
   }
 
-  onReconnect(): void {
-    this.#client.reconnect()
+  /**
+   * Calls the callback every time the client connects again after losing
+   * its connection. mqtt.js reconnects on its own.
+   */
+  onReconnect(callback: () => void): void {
+    this.#reconnectCallbacks.push(callback)
   }
 
   async unsubscribe(channel: string): Promise<void> {
     await this.#client.unsubscribeAsync(channel)
     this.#handlers.delete(channel)
+  }
+
+  /**
+   * `connect` is emitted for the first connection too, which is not a
+   * reconnection
+   */
+  #onConnect = () => {
+    if (!this.#hasConnected) {
+      this.#hasConnected = true
+      return
+    }
+
+    debug('mqtt client reconnected')
+    for (const callback of this.#reconnectCallbacks) callback()
   }
 
   #onMessage = (channel: string, message: Buffer | string) => {
