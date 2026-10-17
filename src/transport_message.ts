@@ -5,7 +5,7 @@
  * @copyright BoringNode
  */
 
-import type { Serializable, TransportEncoder, TransportMessage } from './types/main.js'
+import type { Serializable, TransportEncoder, TransportMessage } from './types/core.js'
 
 function isTransportMessage<T extends Serializable>(value: unknown): value is TransportMessage<T> {
   return (

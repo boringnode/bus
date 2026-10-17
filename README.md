@@ -41,6 +41,15 @@ Currently, it supports the following transports:
 npm install @boringnode/bus
 ```
 
+The Redis and MQTT transports rely on optional peer dependencies. Install the client of the transport you use.
+
+```bash
+npm install ioredis # for the Redis transport
+npm install mqtt # for the MQTT transport
+```
+
+If your project has neither `ioredis` nor `mqtt` installed and uses `skipLibCheck: false`, import types from `@boringnode/bus/types/core`. `@boringnode/bus/types/main` also re-exports the Redis and MQTT types.
+
 ## Usage
 
 The module exposes a manager that can be used to register buses.

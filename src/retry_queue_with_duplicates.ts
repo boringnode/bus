@@ -5,7 +5,7 @@
  * @copyright BoringNode
  */
 
-import type { TransportMessage, RetryQueueOptions } from './types/main.js'
+import type { TransportMessage, RetryQueueOptions } from './types/core.js'
 
 export class RetryQueueWithDuplicates {
   #queue = new Set<{ channel: string; message: TransportMessage }>()

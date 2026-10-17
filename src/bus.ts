@@ -9,7 +9,7 @@ import string from '@poppinss/utils/string'
 import { createId } from '@paralleldrive/cuid2'
 import { RetryQueue } from './retry_queue.js'
 import debug from './debug.js'
-import type { RetryQueueOptions, Serializable, SubscribeHandler, Transport } from './types/main.js'
+import type { RetryQueueOptions, Serializable, SubscribeHandler, Transport } from './types/core.js'
 
 export class Bus {
   readonly #transport: Transport

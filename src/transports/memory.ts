@@ -5,7 +5,7 @@
  * @copyright BoringNode
  */
 
-import type { Transport, Serializable, SubscribeHandler } from '../types/main.js'
+import type { Transport, Serializable, SubscribeHandler } from '../types/core.js'
 
 export function memory() {
   return () => new MemoryTransport()

@@ -6,7 +6,7 @@
  */
 
 import { ChaosInjector } from './chaos_injector.js'
-import type { Transport, Serializable, SubscribeHandler } from '../src/types/main.js'
+import type { Transport, Serializable, SubscribeHandler } from '../src/types/core.js'
 
 export class ChaosTransport implements Transport {
   /**

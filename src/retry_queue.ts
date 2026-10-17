@@ -7,7 +7,7 @@
 
 import { RetryQueueWithDuplicates } from './retry_queue_with_duplicates.js'
 import { RetryQueueWithoutDuplicates } from './retry_queue_without_duplicates.js'
-import type { TransportMessage, RetryQueueOptions } from './types/main.js'
+import type { TransportMessage, RetryQueueOptions } from './types/core.js'
 
 export class RetryQueue {
   readonly #options: RetryQueueOptions

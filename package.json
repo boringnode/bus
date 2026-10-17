@@ -62,10 +62,14 @@
     "object-hash": "^3.0.0"
   },
   "peerDependencies": {
-    "ioredis": "^5.0.0"
+    "ioredis": "^5.0.0",
+    "mqtt": "^5.0.0"
   },
   "peerDependenciesMeta": {
     "ioredis": {
+      "optional": true
+    },
+    "mqtt": {
       "optional": true
     }
   },

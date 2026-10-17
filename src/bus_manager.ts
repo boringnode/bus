@@ -13,7 +13,7 @@ import type {
   Serializable,
   SubscribeHandler,
   TransportConfig,
-} from './types/main.js'
+} from './types/core.js'
 
 export class BusManager<KnownTransports extends Record<string, TransportConfig>> {
   readonly #defaultTransportName: keyof KnownTransports | undefined

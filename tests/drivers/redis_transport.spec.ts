@@ -11,7 +11,7 @@ import { Redis, Cluster } from 'ioredis'
 import { RedisContainer, type StartedRedisContainer } from '@testcontainers/redis'
 import { RedisTransport } from '../../src/transports/redis.js'
 import { JsonEncoder } from '../../src/encoders/json_encoder.js'
-import { type TransportEncoder, type TransportMessage } from '../../src/types/main.js'
+import { type TransportEncoder, type TransportMessage } from '../../src/types/core.js'
 
 test.group('Redis Transport', (group) => {
   let container: StartedRedisContainer

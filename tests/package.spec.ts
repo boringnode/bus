@@ -6,7 +6,7 @@
  */
 
 import { execFileSync } from 'node:child_process'
-import { cp, mkdtemp, rm, symlink, mkdir } from 'node:fs/promises'
+import { cp, mkdtemp, rm, symlink, mkdir, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { test } from '@japa/runner'
@@ -28,7 +28,12 @@ test.group('Package', (group) => {
     await cp('build', join(pkg, 'build'), { recursive: true })
     await cp('package.json', join(pkg, 'package.json'))
 
-    for (const dependency of ['@paralleldrive/cuid2', '@poppinss/utils', 'object-hash']) {
+    for (const dependency of [
+      '@paralleldrive/cuid2',
+      '@poppinss/utils',
+      'object-hash',
+      '@types/node',
+    ]) {
       await mkdir(join(consumer, 'node_modules', dependency, '..'), { recursive: true })
       await symlink(
         join(process.cwd(), 'node_modules', dependency),
@@ -51,5 +56,44 @@ test.group('Package', (group) => {
     )
 
     assert.equal(output.trim(), 'function')
+  }).timeout(30_000)
+
+  test('type-check the core entrypoints without ioredis and mqtt installed', async ({ assert }) => {
+    await writeFile(
+      join(consumer, 'tsconfig.json'),
+      JSON.stringify({
+        compilerOptions: {
+          module: 'NodeNext',
+          moduleResolution: 'NodeNext',
+          strict: true,
+          noEmit: true,
+          skipLibCheck: false,
+          types: ['node'],
+        },
+        files: ['index.ts'],
+      })
+    )
+    await writeFile(
+      join(consumer, 'index.ts'),
+      [
+        `import { Bus, BusManager } from '@boringnode/bus'`,
+        `import { memory } from '@boringnode/bus/transports/memory'`,
+        `import type { Transport } from '@boringnode/bus/types/core'`,
+        `export const manager = new BusManager({ transports: { main: { transport: memory() } } })`,
+        `export const bus: Bus = manager.use('main')`,
+        `export type T = Transport`,
+      ].join('\n')
+    )
+
+    const tsc = join(process.cwd(), 'node_modules/typescript/bin/tsc')
+    const result = (() => {
+      try {
+        return execFileSync('node', [tsc, '-p', consumer], { encoding: 'utf8' })
+      } catch (error) {
+        return error.stdout as string
+      }
+    })()
+
+    assert.equal(result.trim(), '')
   }).timeout(30_000)
 })

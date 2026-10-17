@@ -9,14 +9,8 @@ import { connect, type MqttClient } from 'mqtt'
 import { assert } from '@poppinss/utils/assert'
 
 import debug from '../debug.js'
-import {
-  type Transport,
-  type TransportEncoder,
-  type Serializable,
-  type SubscribeHandler,
-  MqttProtocol,
-  type MqttTransportConfig,
-} from '../types/main.js'
+import type { Transport, TransportEncoder, Serializable, SubscribeHandler } from '../types/core.js'
+import { MqttProtocol, type MqttTransportConfig } from '../types/mqtt.js'
 import { JsonEncoder } from '../encoders/json_encoder.js'
 import { tryDecodeTransportMessage } from '../transport_message.js'
 

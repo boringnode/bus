@@ -12,7 +12,7 @@ import { HiveMQContainer, type StartedHiveMQContainer } from '@testcontainers/hi
 import { GenericContainer, type StartedTestContainer } from 'testcontainers'
 import { MqttTransport } from '../../src/transports/mqtt.js'
 import { JsonEncoder } from '../../src/encoders/json_encoder.js'
-import { type TransportEncoder, type TransportMessage } from '../../src/types/main.js'
+import { type TransportEncoder, type TransportMessage } from '../../src/types/core.js'
 
 test.group('Mqtt Transport', (group) => {
   let hiveMqContainer: StartedHiveMQContainer

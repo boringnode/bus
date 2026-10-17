@@ -5,7 +5,7 @@
  * @copyright BoringNode
  */
 
-import type { TransportEncoder, TransportMessage } from '../types/main.js'
+import type { TransportEncoder, TransportMessage } from '../types/core.js'
 
 export class JsonEncoder implements TransportEncoder {
   encode(message: TransportMessage) {

@@ -6,7 +6,7 @@
  */
 
 import { MessageHasher } from './message_hasher.js'
-import type { TransportMessage, RetryQueueOptions } from './types/main.js'
+import type { TransportMessage, RetryQueueOptions } from './types/core.js'
 
 export class RetryQueueWithoutDuplicates {
   #queue = new Map<string, { channel: string; message: TransportMessage }>()
