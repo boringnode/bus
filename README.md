@@ -82,15 +82,19 @@ const manager = new BusManager({
 })
 ```
 
-Once the manager is created, you can subscribe to channels and publish messages.
+Once the manager is created, you can subscribe to channels and publish messages. A bus does not receive the messages it publishes itself, so the subscriber and the publisher usually live in different processes, connected through a shared transport like Redis.
 
 ```typescript
-manager.subscribe('channel', (message) => {
+// In one process
+await manager.use('redis').subscribe('channel', (message) => {
   console.log('Received message', message)
 })
 
-manager.publish('channel', 'Hello world')
+// In another process
+await manager.use('redis').publish('channel', 'Hello world')
 ```
+
+The memory transport only delivers messages to other buses of the same process.
 
 An error thrown or rejected by a handler does not crash the process, and other handlers still run. The bus catches it and logs it when `NODE_DEBUG=boringnode:bus` is set. Catch errors inside the handler if you need to react to them.
 
@@ -103,7 +107,7 @@ manager.use('mqtt').publish('channel', 'Hello world')
 
 ### MQTT topic filters
 
-The MQTT transport accepts topic filters with the `+` and `#` wildcards, and calls the handlers of every filter matching a received topic. When filters overlap, such as `orders/+` and `orders/#`, some brokers like Mosquitto and EMQX send one copy of the message per matching subscription, and the handlers of these filters are called once per copy.
+The MQTT transport accepts topic filters with the `+` and `#` wildcards, and calls the handlers of every filter matching a received topic. When filters overlap, such as `orders/+` and `orders/#`, some brokers like Mosquitto and EMQX send one copy of the message per matching subscription, and the handlers of these filters are called once per copy. This happens with MQTT 5 too, so avoid overlapping filters when a handler must run once per message.
 
 ### Without the manager
 
@@ -147,10 +151,14 @@ const manager = new BusManager({
   }
 })
 
-manager.use('redis').publish('channel', 'Hello World')
+manager.use('main').publish('channel', 'Hello World')
 ```
 
 The message will be moved to the retry queue and will be retried every 100ms.
+
+The retry queue only retries publishing. Redis and MQTT pub/sub deliver messages at most once: a successful publish does not mean a subscriber received the message, and subscribers that are disconnected when it is published never get it. If you need guaranteed delivery, use a durable mechanism such as Redis Streams or message acknowledgements in your application.
+
+Redis Cluster does not guarantee message ordering either: it sends a keyless `PUBLISH` to a random node, so a subscriber can receive messages published one after the other in a different order.
 
 You have multiple options to configure the retry queue.
 
@@ -159,7 +167,7 @@ export interface RetryQueueOptions {
   // Enable the retry queue (default: true)
   enabled?: boolean
   
-  // Defines if we allow duplicates messages in the retry queue (default: true)
+  // Ignore a message when the same payload is already queued for the same channel (default: true)
   removeDuplicates?: boolean
   
   // The maximum size of the retry queue (default: null)
@@ -178,6 +186,7 @@ You can also use the `ChaosTransport` to simulate a transport that fails randoml
 
 ```ts
 import { Bus } from '@boringnode/bus'
+import { MemoryTransport } from '@boringnode/bus/transports/memory'
 import { ChaosTransport } from '@boringnode/bus/test_helpers'
 
 const buggyTransport = new ChaosTransport(new MemoryTransport())
