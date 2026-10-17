@@ -34,14 +34,18 @@ export class RetryQueueWithoutDuplicates {
   async process(handler: (channel: string, message: TransportMessage) => Promise<boolean>) {
     if (!this.#enabled) return
 
-    for (const { channel, message } of this.#queue.values()) {
+    for (const [hash, { channel, message }] of this.#queue) {
       const result = await handler(channel, message).catch(() => false)
 
       if (!result) {
         break
       }
 
-      this.dequeue()
+      /**
+       * Delete the entry that was sent rather than the head: the handler
+       * may have enqueued messages and evicted this entry meanwhile.
+       */
+      this.#queue.delete(hash)
     }
   }
 

@@ -83,6 +83,28 @@ test.group('RetryQueue', () => {
     assert.deepEqual(processedMessages, ['foo', 'bar'])
   })
 
+  test('should not lose a message evicted while processing', async ({ assert }) => {
+    for (const removeDuplicates of [true, false]) {
+      const queue = new RetryQueue({ removeDuplicates, maxSize: 2 })
+      const delivered: string[] = []
+
+      queue.enqueue(channel, { busId: 'testing', payload: 'm1' })
+      queue.enqueue(channel, { busId: 'testing', payload: 'm2' })
+
+      await queue.process(async (_channel, message) => {
+        if (message.payload === 'm1') {
+          queue.enqueue(channel, { busId: 'testing', payload: 'm3' })
+        }
+
+        delivered.push(message.payload)
+        return true
+      })
+
+      assert.deepEqual(delivered, ['m1', 'm2', 'm3'])
+      assert.equal(queue.size(), 0)
+    }
+  })
+
   test('should ignore dequeue on an empty queue', ({ assert }) => {
     for (const removeDuplicates of [true, false]) {
       const queue = new RetryQueue({ removeDuplicates })
