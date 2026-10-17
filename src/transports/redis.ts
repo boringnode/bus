@@ -29,6 +29,14 @@ export class RedisTransport implements Transport {
 
   #id: string | undefined
 
+  /**
+   * Without an error listener, ioredis prints every connection error
+   * to stderr
+   */
+  readonly #onConnectionError: (error: Error) => void = (error) => {
+    debug('redis connection error: %O', error)
+  }
+
   constructor(path: string, encoder?: TransportEncoder)
   constructor(options: RedisTransportConfig, encoder?: TransportEncoder)
   constructor(
@@ -51,6 +59,15 @@ export class RedisTransport implements Transport {
       this.#publisher = options.duplicate()
       this.#subscriber = options.duplicate()
       this.#useMessageBuffer = transportOptions?.useMessageBuffer ?? false
+      this.#onConnectionError = (error) => {
+        debug('redis connection error: %O', error)
+
+        /**
+         * Users listening for errors on their instance expect to see the
+         * errors of the connections duplicated from it too
+         */
+        if (options.listenerCount('error') > 0) options.emit('error', error)
+      }
     } else {
       // @ts-expect-error - merged definitions of overloaded constructor is not public
       this.#publisher = new Redis(options)
@@ -64,6 +81,8 @@ export class RedisTransport implements Transport {
 
     const event = this.#useMessageBuffer ? 'messageBuffer' : 'message'
     this.#subscriber.on(event, this.#onMessage)
+    this.#publisher.on('error', this.#onConnectionError)
+    this.#subscriber.on('error', this.#onConnectionError)
     this.#publisher.on('ready', this.#onPublisherReady)
   }
 

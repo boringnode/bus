@@ -211,6 +211,53 @@ test.group('Redis Transport', (group) => {
     assert.equal(bus.getRetryQueue().size(), 0)
   }).timeout(60_000)
 
+  test('transport should handle errors of its own connections', async ({ assert, cleanup }) => {
+    const unhandledErrors: unknown[] = []
+    const consoleError = console.error
+    console.error = (...args: unknown[]) => {
+      if (String(args[0]).includes('Unhandled error event')) unhandledErrors.push(args[1])
+      else consoleError(...args)
+    }
+
+    const transport = new RedisTransport({
+      port: await getFreePort(),
+      retryStrategy: () => null,
+    }).setId('bus')
+    cleanup(async () => {
+      console.error = consoleError
+      await transport.disconnect().catch(() => {})
+    })
+
+    await setTimeout(300)
+
+    assert.deepEqual(unhandledErrors, [])
+  })
+
+  test('transport should forward connection errors to the given instance', async ({
+    assert,
+    cleanup,
+  }) => {
+    const errors: Error[] = []
+    const redisInstance = new Redis({
+      port: await getFreePort(),
+      lazyConnect: true,
+      retryStrategy: () => null,
+    })
+    redisInstance.on('error', (error) => errors.push(error))
+
+    const transport = new RedisTransport(redisInstance).setId('bus')
+    cleanup(async () => {
+      await transport.disconnect().catch(() => {})
+      redisInstance.disconnect()
+    })
+
+    void transport.publish('testing-channel', 'test').catch(() => {})
+    await setTimeout(300)
+
+    assert.isAbove(errors.length, 0)
+    assert.propertyVal(errors[0], 'code', 'ECONNREFUSED')
+  })
+
   test('message should be encoded and decoded correctly when using JSON encoder', async ({
     assert,
     cleanup,
