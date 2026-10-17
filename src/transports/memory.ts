@@ -60,11 +60,13 @@ export class MemoryTransport implements Transport {
 
   async unsubscribe(channel: string) {
     const handlers = MemoryTransport.#subscriptions.get(channel) || []
+    const remainingHandlers = handlers.filter((h) => h.busId !== this.#id)
 
-    MemoryTransport.#subscriptions.set(
-      channel,
-      handlers.filter((h) => h.busId !== this.#id)
-    )
+    if (remainingHandlers.length === 0) {
+      MemoryTransport.#subscriptions.delete(channel)
+    } else {
+      MemoryTransport.#subscriptions.set(channel, remainingHandlers)
+    }
   }
 
   async disconnect() {
