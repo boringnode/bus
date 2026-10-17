@@ -27,7 +27,7 @@ export class ChaosTransport implements Transport {
   setId(id: string) {
     this.#innerTransport.setId(id)
 
-    return this.#innerTransport
+    return this
   }
 
   getInnerTransport<T extends Transport>(): T {
@@ -67,5 +67,7 @@ export class ChaosTransport implements Transport {
     return this.#innerTransport.disconnect()
   }
 
-  onReconnect(_callback: () => void): void {}
+  onReconnect(callback: () => void): void {
+    this.#innerTransport.onReconnect(callback)
+  }
 }

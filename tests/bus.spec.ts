@@ -179,4 +179,32 @@ test.group('Bus', () => {
     assert.equal(count, 1)
     assert.deepEqual(unhandledRejections, [])
   })
+
+  test('should flush the retry queue when a chaos transport reconnects', async ({
+    assert,
+    cleanup,
+  }) => {
+    class ReconnectingTransport extends MemoryTransport {
+      reconnect = () => {}
+
+      onReconnect(callback: () => void) {
+        this.reconnect = callback
+      }
+    }
+
+    const inner = new ReconnectingTransport()
+    const chaos = new ChaosTransport(inner)
+    const bus = new Bus(chaos)
+    cleanup(() => bus.disconnect())
+
+    chaos.alwaysThrow()
+    await bus.publish(kTestingChannel, 'test')
+    chaos.neverThrow()
+
+    inner.reconnect()
+    await setTimeout(10)
+
+    assert.strictEqual(chaos.setId('id'), chaos)
+    assert.equal(bus.getRetryQueue().size(), 0)
+  })
 })
