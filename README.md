@@ -101,6 +101,10 @@ manager.use('redis').publish('channel', 'Hello world')
 manager.use('mqtt').publish('channel', 'Hello world')
 ```
 
+### MQTT topic filters
+
+The MQTT transport accepts topic filters with the `+` and `#` wildcards, and calls the handlers of every filter matching a received topic. When filters overlap, such as `orders/+` and `orders/#`, some brokers like Mosquitto and EMQX send one copy of the message per matching subscription, and the handlers of these filters are called once per copy.
+
 ### Without the manager
 
 If you don't need multiple buses, you can create a single bus directly by importing the transports and the Bus class.

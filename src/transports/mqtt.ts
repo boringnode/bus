@@ -14,6 +14,29 @@ import { MqttProtocol, type MqttTransportConfig } from '../types/mqtt.js'
 import { JsonEncoder } from '../encoders/json_encoder.js'
 import { tryDecodeTransportMessage } from '../transport_message.js'
 
+/**
+ * Tells if a topic matches an MQTT topic filter, with `+` matching one
+ * level and `#` the remaining levels.
+ *
+ * matchesFilter('a/+', 'a/b')   // true
+ * matchesFilter('a/#', 'a')     // true
+ * matchesFilter('+/b', '$SYS/b') // false, wildcards skip `$` topics
+ */
+function matchesFilter(filter: string, topic: string) {
+  const filterLevels = filter.split('/')
+  const topicLevels = topic.split('/')
+
+  if (topic.startsWith('$') && ['+', '#'].includes(filterLevels[0]!)) return false
+
+  for (const [index, level] of filterLevels.entries()) {
+    if (level === '#') return true
+    if (index >= topicLevels.length) return false
+    if (level !== '+' && level !== topicLevels[index]) return false
+  }
+
+  return filterLevels.length === topicLevels.length
+}
+
 export function mqtt(config: MqttTransportConfig, encoder?: TransportEncoder) {
   return () => new MqttTransport(config, encoder)
 }
@@ -101,10 +124,16 @@ export class MqttTransport implements Transport {
     for (const callback of this.#reconnectCallbacks) callback()
   }
 
+  /**
+   * Some brokers send one copy of a message per matching subscription,
+   * so the handlers of overlapping filters run once per copy.
+   */
   #onMessage = (channel: string, message: Buffer | string) => {
-    const handlers = this.#handlers.get(channel)
+    const handlers = [...this.#handlers].flatMap(([filter, filterHandlers]) =>
+      matchesFilter(filter, channel) ? filterHandlers : []
+    )
 
-    if (!handlers) return
+    if (handlers.length === 0) return
 
     debug('received message for channel "%s"', channel)
 

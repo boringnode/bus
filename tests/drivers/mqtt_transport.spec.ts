@@ -448,6 +448,40 @@ test.group('Mqtt Transport', (group) => {
     await transport2.publish('testing-channel', data)
   }).waitForDone()
 
+  test('wildcard filters should receive matching messages', async ({ assert, cleanup }) => {
+    const brokers = {
+      hivemq: hiveMqContainer,
+      emqx: emqxContainer,
+      mosquitto: mosquittoContainer,
+    }
+
+    for (const [name, container] of Object.entries(brokers)) {
+      const config = { host: container.getHost(), port: container.getMappedPort(1883) }
+      const subscriber = new MqttTransport(config).setId('subscriber')
+      const publisher = new MqttTransport(config).setId('publisher')
+      cleanup(async () => {
+        await subscriber.disconnect()
+        await publisher.disconnect()
+      })
+
+      const calls: Record<string, string[]> = { '+': [], '#': [] }
+      await subscriber.subscribe<string>(`${name}/+/plus`, (payload) => {
+        calls['+'].push(payload)
+      })
+      await subscriber.subscribe<string>(`${name}/hash/#`, (payload) => {
+        calls['#'].push(payload)
+      })
+
+      await publisher.publish(`${name}/a/plus`, 'a/plus')
+      await publisher.publish(`${name}/a/b/plus`, 'a/b/plus')
+      await publisher.publish(`${name}/hash`, 'hash')
+      await publisher.publish(`${name}/hash/a/b`, 'hash/a/b')
+      await setTimeout(500)
+
+      assert.deepEqual(calls, { '+': ['a/plus'], '#': ['hash', 'hash/a/b'] }, name)
+    }
+  }).timeout(20_000)
+
   test('Mosquitto transport should keep a single connection while idle', async ({
     assert,
     cleanup,
