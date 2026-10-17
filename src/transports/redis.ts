@@ -25,6 +25,8 @@ export class RedisTransport implements Transport {
   readonly #useMessageBuffer: boolean = false
   readonly #handlers = new Map<string, SubscribeHandler<any>[]>()
 
+  readonly #reconnectCallbacks: Array<() => void> = []
+
   #id: string | undefined
 
   constructor(path: string, encoder?: TransportEncoder)
@@ -62,6 +64,7 @@ export class RedisTransport implements Transport {
 
     const event = this.#useMessageBuffer ? 'messageBuffer' : 'message'
     this.#subscriber.on(event, this.#onMessage)
+    this.#publisher.on('ready', this.#onPublisherReady)
   }
 
   setId(id: string): Transport {
@@ -71,6 +74,7 @@ export class RedisTransport implements Transport {
   }
 
   async disconnect(): Promise<void> {
+    this.#publisher.off('ready', this.#onPublisherReady)
     await Promise.all([this.#publisher.quit(), this.#subscriber.quit()])
   }
 
@@ -101,13 +105,26 @@ export class RedisTransport implements Transport {
     }
   }
 
+  /**
+   * Calls the callback every time the publisher becomes usable, so
+   * messages queued while Redis was unreachable can be published. This
+   * includes the first connection, for messages published before it.
+   */
   onReconnect(callback: () => void): void {
-    this.#subscriber.on('reconnecting', callback)
+    this.#reconnectCallbacks.push(callback)
   }
 
   async unsubscribe(channel: string): Promise<void> {
     await this.#subscriber.unsubscribe(channel)
     this.#handlers.delete(channel)
+  }
+
+  /**
+   * Works for both Redis and Cluster connections
+   */
+  #onPublisherReady = () => {
+    debug('redis publisher is ready')
+    for (const callback of this.#reconnectCallbacks) callback()
   }
 
   #onMessage = (receivedChannel: Buffer | string, message: Buffer | string) => {

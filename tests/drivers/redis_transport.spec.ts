@@ -6,12 +6,23 @@
  */
 
 import { setImmediate, setTimeout } from 'node:timers/promises'
+import { createServer, type AddressInfo } from 'node:net'
 import { test } from '@japa/runner'
 import { Redis, Cluster } from 'ioredis'
 import { RedisContainer, type StartedRedisContainer } from '@testcontainers/redis'
+import { Bus } from '../../src/bus.js'
 import { RedisTransport } from '../../src/transports/redis.js'
 import { JsonEncoder } from '../../src/encoders/json_encoder.js'
 import { type TransportEncoder, type TransportMessage } from '../../src/types/core.js'
+
+function getFreePort() {
+  return new Promise<number>((resolve) => {
+    const server = createServer().listen(0, () => {
+      const { port } = server.address() as AddressInfo
+      server.close(() => resolve(port))
+    })
+  })
+}
 
 test.group('Redis Transport', (group) => {
   let container: StartedRedisContainer
@@ -139,23 +150,66 @@ test.group('Redis Transport', (group) => {
     assert.equal(previousHandlerCalls, 0)
   })
 
-  test('transport should trigger onReconnect when the client reconnects', async ({
+  test('bus should flush the retry queue once Redis is usable again', async ({
     assert,
     cleanup,
   }) => {
-    const transport = new RedisTransport(container.getConnectionUrl()).setId('bus')
-    cleanup(() => transport.disconnect())
-
-    let onReconnectTriggered = false
-    transport.onReconnect(() => {
-      onReconnectTriggered = true
+    /**
+     * A restarted container gets a new host port unless it is fixed
+     */
+    const port = await getFreePort()
+    const redis = await new RedisContainer('redis:7.2')
+      .withExposedPorts({ container: 6379, host: port })
+      .start()
+    const bus = new Bus(
+      new RedisTransport({ host: redis.getHost(), port, enableOfflineQueue: false })
+    )
+    cleanup(async () => {
+      await bus.disconnect()
+      await redis.stop()
     })
 
-    await container.restart()
-    await setTimeout(200)
+    while (!(await bus.publish('retry-channel', 'connected'))) {
+      await setTimeout(50)
+    }
+    await bus.processErrorRetryQueue()
 
-    assert.isTrue(onReconnectTriggered)
-  })
+    const restart = redis.restart()
+    while (await bus.publish('retry-channel', 'test')) {
+      await setTimeout(50)
+    }
+    assert.equal(bus.getRetryQueue().size(), 1)
+
+    await restart
+    for (let i = 0; i < 100 && bus.getRetryQueue().size() > 0; i++) {
+      await setTimeout(100)
+    }
+
+    assert.equal(bus.getRetryQueue().size(), 0)
+  }).timeout(60_000)
+
+  test('bus should flush the retry queue once Redis starts', async ({ assert, cleanup }) => {
+    const port = await getFreePort()
+    const bus = new Bus(new RedisTransport({ port, enableOfflineQueue: false }))
+    let redis: StartedRedisContainer | undefined
+    cleanup(async () => {
+      await bus.disconnect()
+      await redis?.stop()
+    })
+
+    assert.isFalse(await bus.publish('retry-channel', 'test'))
+    assert.equal(bus.getRetryQueue().size(), 1)
+
+    redis = await new RedisContainer('redis:7.2')
+      .withExposedPorts({ container: 6379, host: port })
+      .start()
+
+    for (let i = 0; i < 100 && bus.getRetryQueue().size() > 0; i++) {
+      await setTimeout(100)
+    }
+
+    assert.equal(bus.getRetryQueue().size(), 0)
+  }).timeout(60_000)
 
   test('message should be encoded and decoded correctly when using JSON encoder', async ({
     assert,
