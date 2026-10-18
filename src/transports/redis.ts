@@ -19,6 +19,14 @@ export function redis(config: RedisTransportConfig, encoder?: TransportEncoder) 
 }
 
 /**
+ * Since ioredis 6, `Redis` and `Cluster` have incompatible `duplicate`
+ * signatures, so the union must be narrowed before calling it
+ */
+function duplicate(connection: Redis | Cluster): Redis | Cluster {
+  return connection instanceof Cluster ? connection.duplicate() : connection.duplicate()
+}
+
+/**
  * `quit` waits for pending replies but needs a writable connection. With
  * `enableOfflineQueue: false`, it rejects while the connection is down and
  * leaves it reconnecting forever, so we drop it instead
@@ -70,8 +78,8 @@ export class RedisTransport implements Transport {
      * to have separate connections for publisher and subscriber
      */
     if (options instanceof Redis || options instanceof Cluster) {
-      this.#publisher = options.duplicate()
-      this.#subscriber = options.duplicate()
+      this.#publisher = duplicate(options)
+      this.#subscriber = duplicate(options)
       this.#useMessageBuffer = transportOptions?.useMessageBuffer ?? false
       this.#onConnectionError = (error) => {
         debug('redis connection error: %O', error)
