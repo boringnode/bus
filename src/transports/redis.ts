@@ -18,6 +18,20 @@ export function redis(config: RedisTransportConfig, encoder?: TransportEncoder) 
   return () => new RedisTransport(config, encoder)
 }
 
+/**
+ * `quit` waits for pending replies but needs a writable connection. With
+ * `enableOfflineQueue: false`, it rejects while the connection is down and
+ * leaves it reconnecting forever, so we drop it instead
+ */
+async function close(connection: Redis | Cluster): Promise<void> {
+  if (connection.status === 'ready') {
+    await connection.quit()
+    return
+  }
+
+  connection.disconnect()
+}
+
 export class RedisTransport implements Transport {
   readonly #publisher: Redis | Cluster
   readonly #subscriber: Redis | Cluster
@@ -94,7 +108,7 @@ export class RedisTransport implements Transport {
 
   async disconnect(): Promise<void> {
     this.#publisher.off('ready', this.#onPublisherReady)
-    await Promise.all([this.#publisher.quit(), this.#subscriber.quit()])
+    await Promise.all([close(this.#publisher), close(this.#subscriber)])
   }
 
   async publish(channel: string, message: Serializable): Promise<void> {
